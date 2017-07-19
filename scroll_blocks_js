@@ -1,0 +1,12 @@
+
+//функция для добавления класса по скроллу. в данном случае - по скроллу появляются плавно блоки
+
+$(function(){
+  $(window).scroll(function(){
+    var offsetDist = $('.last').offset().top - $(window).height();
+    if ($(window).scrollTop()> offsetDist)
+      $('.layer_1').addClass('layer_js'); 
+      
+  })
+  
+})
