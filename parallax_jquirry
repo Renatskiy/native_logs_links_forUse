@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>parallax</title>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<style>
+  /*****************************************************************/
+
+
+/* Global reset
+   http://meyerweb.com/eric/tools/css/reset/ 
+*****************************************************************/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+body {
+  line-height: 1;
+}
+ol, ul {
+  list-style: none;
+}
+blockquote, q {
+  quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: '';
+  content: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+
+
+body{
+  background: #bbb;
+}
+
+
+.container{
+  position: relative;
+}
+.bg_1_1{
+  position: absolute;
+  top: 100px;
+}
+.bg_1_2{
+  position: absolute;
+  top: 500px;
+  right: 50px;
+}
+.bg_1_3{
+  position: absolute;
+  top: 1100px;
+  left: 30px;
+}
+.bg_2_1{
+  position: absolute;
+  top: 300px;
+  left: 300px;
+}
+.bg_2_2{
+  position: absolute;
+  top: 400px;
+  left: 40px;
+}
+.bg_2_3{
+  position: absolute;
+  top: 900px;
+  right: 30px;
+}
+.bg_3_1{
+  position: absolute;
+  top: 600px;
+  left: -410px;
+}
+.bg_3_2{
+  position: absolute;
+  top: 1000px;
+  left: -320px;
+}
+.bg_3_3{
+  position: absolute;
+  top: 100px;
+  right: 540px;
+}
+.background_one{
+  position: absolute;
+  z-index: 3;
+  left: 0%;
+  width: 940px;
+  top: 0;
+}
+.background_two{
+  position: fixed;
+  z-index: 2;
+  left: 50%;
+  width: 1200px;
+  top: 0;
+}
+.background_thre{
+  position: fixed;
+  z-index: 1;
+  left: 50%;
+  width: 1200px;
+  top: 0;
+}
+</style>
+<div class="container">
+  <div class="top-menu">
+    
+  </div>
+<!-- menu -->
+
+
+<!-- content -->
+  
+<!-- background -->
+<div class="background_one">
+  <img src="img/balloon.png" alt="" class="bg_1_1">
+  <img src="img/balloon2.png" alt="" class="bg_1_2">
+  <img src="img/balloon3.png" alt="" class="bg_1_3">
+</div>
+<div class="background_two">
+  <img src="img/cloud-lg1.png" alt="" class="bg_2_1">
+  <img src="img/cloud-lg1.png" alt="" class="bg_2_2">
+  <img src="img/cloud-lg1.png" alt="" class="bg_2_3">
+</div>
+<div class="background_thre">
+  <img src="img/cloud-lg2.png" alt="" class="bg_3_1">
+  <img src="img/cloud-lg2.png" alt="" class="bg_3_2">
+  <img src="img/cloud-lg2.png" alt="" class="bg_3_3">
+</div>
+
+
+</div>
+<script src="http://code.jquery.com/jquery-2.2.4.js"></script>
+<script src="js/parallax.js"></script>
+
+ <script>
+   $(document).ready(function(){
+
+    $(window).bind('scroll', function(e){
+      myParallaxScroll();
+     
+    })
+});
+
+
+function myParallaxScroll(){
+  var scrolled = $(window).scrollTop();
+  $('.background_one').css('top',(0-(scrolled*0.001))+'px');
+  $('.background_two').css('top',(0-(scrolled*.075))+'px');
+  $('.background_thre').css('top',(0-(scrolled*.05))+'px');
+};
+
+ </script>
+</body>
+</html>
