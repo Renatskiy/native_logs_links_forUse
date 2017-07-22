@@ -1,0 +1,94 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <link rel="stylesheet" href="style.css">
+ 
+</head>
+<body>
+<style>
+
+
+.container{
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+.background_one{
+  overflow: hidden;
+    width: 960px;
+    height: 720px;
+    position: relative;
+}
+.block_parallax{
+    margin: 0 auto;
+    width: 880px;
+    height: 580px;
+    overflow: hidden;
+    position: relative;
+    box-sizing: border-box;
+}
+.image_one{
+  position: absolute;
+}
+.image_three{
+  position: absolute;
+ 
+  width: 400px;
+  top: 200px;
+  left: 350px;
+
+}
+.image_two{
+  position: absolute;
+  width: 100px;
+  top: 250px;
+  left: 100px;
+}
+</style>
+
+<div class="container">
+  <div class="block_parallax">
+    <div class="background_one">
+      <img src="img/1.png" alt="" class="image_one">
+    </div>
+    <div class="background_two">
+      <img src="img/2.png" alt="" class="image_two">
+    </div>
+    <div class="background_three">
+      <img src="img/3.png" alt="" class="image_three">
+    </div>
+  </div>
+</div>
+
+
+<script
+  src="http://code.jquery.com/jquery-3.2.1.js"></script>
+   <script type="text/javascript" src="main.js"></script>
+   
+   <script>
+
+
+
+$('.block_parallax').bind('mousemove',
+  function(e){
+    // console.log(e.pageX);
+    // console.log(e.pageY);
+    $('.image_one').css('left', e.pageX*(-0.05));
+    $('.image_one').css('top', e.pageY*(-0.05));
+    $('.image_two').css('left', e.pageX*0.1+100);
+    $('.image_two').css('top', e.pageY*0.1+250);
+    $('.image_three').css('left', e.pageX*0.1+350);
+    $('.image_three').css('top', e.pageY*0.3+200);
+
+
+  });
+
+</script>
+  
+</body>
+</html>
