@@ -1,0 +1,10 @@
+Изменение стиля по скролу нативный js
+
+window.onscroll = function(){
+    var html = document.documentElement, body = document.body;
+    var hoverStyle = document.getElementById('js-scrollHover').style;
+    if(html.scrollTop>100||body.scrollTop>100){
+        hoverStyle.backgroundColor = "#00CA67";
+    }
+    else hoverStyle.backgroundColor = "";
+}
