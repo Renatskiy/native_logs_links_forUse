@@ -1,0 +1,4 @@
+чтобы svg отображались на explorer и на не популярных браузерах, добавить в проект это:
+
+
+https://github.com/jonathantneal/svg4everybody
