@@ -1,0 +1,93 @@
+нативный скролл с переключением экранов по колесику мыши
+
+
+$('.promo').on('mousewheel', function(event) {
+		if(!isMobile) {
+			if(event.deltaY == -1) {
+				if(animat == false) {
+					animat = true;
+					$('html, body').animate({scrollTop: $('.car-info').offset().top - $('.redfloat').height() - 37}, 1000, function() {
+						animat = false;
+					});
+				}
+			}
+			event.preventDefault();
+		}
+	});
+
+	$('.car-info').on('mousewheel', function(event) {
+		if(!isMobile) {
+			if(event.deltaY == -1) {
+				if(animat == false) {
+					animat = true;
+					$('html, body').animate({scrollTop: $('.vid-part').offset().top - $('.redfloat').height() - 37}, 1000, function() {
+						animat = false;
+					});
+				}
+			} else {
+				if(animat == false) {
+					animat = true;
+					$('html, body').animate({scrollTop: $('.promo').offset().top - $('.redfloat').height() - 37}, 1000, function() {
+						animat = false;
+					});
+				}
+			}
+			event.preventDefault();
+		}
+	});
+
+	$('.vid-part').on('mousewheel', function(event) {
+		if(!isMobile) {
+			if(event.deltaY == -1) {
+				if(animat == false) {
+					animat = true;
+					$('html, body').animate({scrollTop: $('.compl').offset().top - $('.redfloat').height() - 37}, 1000, function() {
+						animat = false;
+					});
+				}
+			} else {
+				if(animat == false) {
+					animat = true;
+					$('html, body').animate({scrollTop: $('.car-info').offset().top - $('.redfloat').height() - 37}, 1000, function() {
+						animat = false;
+					});
+				}
+			}
+			event.preventDefault();
+		}
+	});
+
+	$('.reddealer').on('mousewheel', function(event) {
+		if(!isMobile) {
+			if(event.deltaY != -1) {
+				if(animat == false) {
+					animat = true;
+					$('html, body').animate({scrollTop: $('.compl').offset().top - $('.redfloat').height() - 37}, 1000, function() {
+						animat = false;
+					});
+				}
+				event.preventDefault();
+			}
+		}
+	});
+
+	$('.compl').on('mousewheel', function(event) {
+		if(!isMobile) {
+			if(event.deltaY == -1) {
+                if(animat == false) {
+                    animat = true;
+                    $('html, body').animate({scrollTop: $('.reddealer').offset().top - $('.redfloat').height() - 37}, 1000, function() {
+                        animat = false;
+                    });
+                }
+			} else {
+				if(animat == false) {
+					animat = true;
+					$('html, body').animate({scrollTop: $('.vid-part').offset().top - $('.redfloat').height() - 37}, 1000, function() {
+						animat = false;
+					});
+				}
+			}
+			event.preventDefault();
+		}
+	});
