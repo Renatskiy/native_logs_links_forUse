@@ -1,4 +1,34 @@
 http://idangero.us/swiper/api/#.WbuQldNJZTY
 
 
-объявление под inint с функцией обратного рендеринга (возвращение экрана в обратное состояние - свайпер удаляется и при стяжке экрана, он генерится)
+//объявление под inint с функцией обратного рендеринга (возвращение экрана в обратное состояние - свайпер удаляется и при стяжке экрана, он генерится)
+var productsList = {
+    init: function () {
+        if ($(window).width() < 1024 - scrollWidth()) {
+            var productsListSwiper = new Swiper('.js-product-list', {
+                nextButton: '.product-list__button-next',
+                prevButton: '.product-list__button-prev',
+                slidesPerView: 2,
+                spaceBetween: 15,
+                breakpoints: {
+                    640: {
+                        slidesPerView: 1,
+                        spaceBetween: 35,
+                    }
+                }
+            });
+
+            productsListSwiper.onResize();
+
+
+        }else {
+            setTimeout(function(){
+                $('.js-product-list').find('.swiper-wrapper').removeAttr("style");
+                $('.js-product-list').find('.swiper-slide').removeAttr("style");
+            });
+
+        }
+
+
+    }
+}
