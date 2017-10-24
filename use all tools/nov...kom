@@ -1,0 +1,2894 @@
+//'use strict';
+
+var consoleFix = {
+    init: function () {
+        if (!(window.console && console.log)) {
+            (function () {
+                var noop = function () {
+                };
+                var methods = ['assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error', 'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log', 'markTimeline', 'profile', 'profileEnd', 'markTimeline', 'table', 'time', 'timeEnd', 'timeStamp', 'trace', 'warn'];
+                var length = methods.length;
+                var console = window.console = {};
+                while (length--) {
+                    console[methods[length]] = noop;
+                }
+            }());
+        }
+    }
+};
+
+function isTouch() {
+    try {
+        document.createEvent("TouchEvent");
+        return true;
+    }
+    catch (e) {
+        return false;
+    }
+}
+
+function scrollWidth() {
+    var div = $('<div>').css({
+        position: "absolute",
+        top: "0px",
+        left: "0px",
+        width: "100px",
+        height: "100px",
+        visibility: "hidden",
+        overflow: "scroll"
+    });
+
+    $('body').eq(0).append(div);
+
+    var width = div.get(0).offsetWidth - div.get(0).clientWidth;
+
+    div.remove();
+
+    return width;
+}
+
+var select = {
+    init: function () {
+        var _select = $('.js-select select');
+        // custom for touch
+        if (isTouch()) {
+            _select.each(function () {
+                $(this).addClass("touch");
+                var placeholder = $(this).data("placeholder");
+                var pseudeSelect = $(this).siblings(".select__pseudo-touch");
+
+                pseudeSelect.text(placeholder);
+
+                var selectedOption = $(this).find('option:selected');
+                if (selectedOption) {
+                    if (pseudeSelect.hasClass("select__pseudo-touch--placeholder")) {
+                        pseudeSelect.removeClass("select__pseudo-touch--placeholder");
+                    }
+                    pseudeSelect.text(selectedOption.text());
+                }
+
+                $(this).on("change", function () {
+                    if (pseudeSelect.hasClass("select__pseudo-touch--placeholder")) {
+                        pseudeSelect.removeClass("select__pseudo-touch--placeholder");
+                    }
+                    pseudeSelect.text($(this).find("option:selected").text());
+                });
+            });
+        }
+        // custom for desktop
+        else {
+            if ((_select.length != 0) && (typeof $.fn.select2 == 'function')) {
+                _select.each(function () {
+                    $(this).select2({
+                        theme: 'default',
+                        placeholder: $(this).data('placeholder')
+                    });
+                });
+            }
+        }
+    }
+};
+
+var currencySelect = {
+    init: function () {
+        var _select = $('.js-currency-select select');
+        // custom for touch
+        if (isTouch()) {
+            _select.each(function () {
+                $(this).addClass("touch");
+                var placeholder = $(this).data("placeholder");
+                var pseudeSelect = $(this).siblings(".select__pseudo-touch");
+                pseudeSelect.text(placeholder);
+                $(this).on("change", function () {
+                    if (pseudeSelect.hasClass("select__pseudo-touch--placeholder")) {
+                        pseudeSelect.removeClass("select__pseudo-touch--placeholder");
+                    }
+                    pseudeSelect.text($(this).find("option:selected").text());
+                });
+            });
+        }
+        // custom for desktop
+        else {
+            if ((_select.length != 0) && (typeof $.fn.select2 == 'function')) {
+                _select.each(function () {
+                    $(this).select2({
+                        theme: 'default',
+                        placeholder: $(this).data('placeholder')
+                    });
+                });
+            }
+        }
+    }
+};
+
+var tabs1 = {
+    init: function () {
+        $(document).on("click", ".js-tabs1__item", function () {
+            if (!$(this).hasClass("active") && !$(this).hasClass("disabled")) {
+                $(this).siblings(".tabs1__item.active").removeClass("active");
+                $(this).addClass("active");
+            }
+        });
+    }
+};
+
+var tabs2 = {
+    init: function () {
+        $(document).on("click", ".js-tabs2__item", function () {
+            if (!$(this).hasClass("active") && !$(this).hasClass("disabled")) {
+                var type = $(this).attr('data-type');
+                $('[name="FILTER[CALC_TYPE]"]').val(type).trigger('change');
+                $(this).siblings(".tabs2__item.active").removeClass("active");
+                $(this).addClass("active");
+                var item = $(this).index();
+                $(this).closest(".tabs2").find(".tabs2__cont").hide().eq(item).show();
+            }
+        });
+    }
+};
+
+var tabs3 = {
+    init: function (newGalObject) {
+        var tabs = $(".tabs3");
+        // update news gallery in all tab containers
+        var updateNewsGal = function (obj) {
+            obj.show(function () {
+                if (obj.find(".news-gal").length) {
+                    for (var i = 0; i < newGalObject.sliders.length; i++) {
+                        newGalObject.sliders[i].update();
+
+                    }
+                    obj.closest(".tabs3__cont").css("minHeight", "");
+                }
+            });
+
+        };
+        if (tabs.length) {
+            tabs.each(function () {
+                $(this).find(".js-tabs3__tab:first").addClass("active");
+                var tabCont = $(this).find(".tabs3__cont-item:first");
+                updateNewsGal(tabCont);
+
+            });
+        }
+        $(document).on("click", ".js-tabs3__tab", function () {
+            if (!$(this).hasClass("active")) {
+                $(this).siblings(".tabs3__tab.active").removeClass("active");
+                var tabCont = $(this).closest(".tabs3").find(".tabs3__cont"),
+                    tabContH = tabCont.outerHeight();
+                tabCont.css("minHeight", tabContH);
+                var itemIndex;
+                if (!$(this).siblings(".tabs3__tabs-title").length) {
+                    itemIndex = $(this).index();
+                }
+                else {
+                    itemIndex = $(this).index() - 1;
+                }
+                $(this).addClass("active");
+                var $tabCont = $(this).closest(".tabs3").find(".tabs3__cont-item");
+                if ($tabCont.length) {
+                    $tabCont.filter(":visible").fadeOut(300, function () {
+                        $tabCont.eq(itemIndex).css("opacity", 0).show(300, function () {
+                            updateNewsGal(tabCont);
+                            $tabCont.eq(itemIndex).animate({
+                                opacity: 1
+                            });
+                        });
+                    });
+                }
+            }
+        });
+    }
+};
+
+var selectCityTitle = {
+    init: function () {
+        $(document).on('click', '.js-select-city-currennt', function (e) {
+            e.preventDefault();
+            $('.js-select-city').toggle();
+        });
+
+        $(document).on('click', '.js-select-city a', function (e) {
+            e.preventDefault();
+            $('.js-select-city-currennt').text($(this).text());
+        });
+
+    }
+}
+
+var selectCityClose = {
+    init: function () {
+        $(document).mouseup(function (e) {
+            var selectCity = $('.js-select-city');
+            if (!selectCity.is(e.target)
+                && selectCity.has(e.target).length === 0) {
+                selectCity.hide();
+            }
+        });
+    }
+}
+
+var irsSimple = {
+    init: function () {
+        $(".js-ion-simple").each(function () {
+            var object = $(this),
+                minVal = object.data("min"),
+                maxVal = object.data("max"),
+                fromVal = object.data("from"),
+                stepVal = object.data("step");
+            object.ionRangeSlider({
+                min: minVal,
+                max: maxVal,
+                from: fromVal,
+                step: stepVal
+            })
+        });
+    }
+};
+
+var irsInput = {
+    init: function () {
+        $(".js-ion-input input[type='text']").each(function () {
+            var object = $(this),
+                minVal = object.data("min"),
+                maxVal = object.data("max"),
+                fromVal = object.data("from"),
+                stepVal = object.data("step"),
+                dimension = object.data("dimension"),
+                dimensionSVG;
+
+            object.ionRangeSlider({
+                grid: false,
+                min: minVal,
+                max: maxVal,
+                from: fromVal,
+                step: stepVal,
+                prettify_enabled: true,
+                //input: [],
+                visibleVal: "",
+                onStart: function (data) {
+                    if (dimension == "Р") {
+                        dimensionSVG = '<svg class="ion-input__currency">\
+                                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/local/templates/main/icons/sprite.svg#rub"></use>\
+                                        </svg>';
+                        this.input = data.input[0];
+                        this.visibleVal = $(this.input).closest(".ion-input").find(".ion-input__value");
+                        //this.visibleVal.html('<div class="ion-input__value-text">' + data.input.val() + "</div>" + dimensionSVG);
+                    }
+                    else {
+                        this.input = data.input[0];
+                        this.visibleVal = $(this.input).closest(".ion-input").find(".ion-input__value");
+                        //this.visibleVal.html('<div class="ion-input__value-text">' + data.input.val() + " " + dimension + "</div>");
+                    }
+                },
+                onChange: function (data) {
+                    if (dimension == "Р") {
+                        //this.visibleVal.html('<div class="ion-input__value-text">' + data.input.val() + "</div>" + dimensionSVG);
+                    }
+                    else {
+                        //this.visibleVal.html('<div class="ion-input__value-text">' + data.input.val() + " " + dimension + "</div>");
+                    }
+
+                }
+            });
+        });
+    }
+};
+
+var Dropdown = function () {
+    var _this = this;
+    this.closeDropdown = function () {
+        $(".dropdown__cont-inner").slideUp();
+        $(".dropdown__head").removeClass("active");
+    };
+    this.init = function () {
+        $(document).on("click", ".js-dropdown__head", function () {
+            var cont = $(this).closest(".dropdown__item").find(".dropdown__cont-inner");
+            if (!cont.is(":visible")) {
+                var popupMinHeight = $(this).siblings(".employee-card").outerHeight();
+                cont.find(".dropdown__cont-inner2").outerHeight(popupMinHeight);
+                $(".dropdown__cont-inner").slideUp();
+                $(this).addClass("active");
+                cont.slideDown();
+            }
+            else {
+                $(this).removeClass("active");
+                cont.slideUp();
+            }
+        });
+        $(document).on("mouseup", function (e) {
+            if (!$(e.target).closest(".dropdown__item").length) {
+                _this.closeDropdown();
+            }
+        });
+        $(document).on("click", ".js-dropdown__link", function () {
+            var text = $(this).text();
+            $(this).closest(".dropdown__item").find(".dropdown__head-target").text(text);
+            _this.closeDropdown();
+
+            $(this).parents('.dropdown').find('.employee-cards').hide();
+        });
+
+
+        $(document).on('click', '.js-dropdown__link', function () {
+
+            var $this = $(this)
+
+            $this.parents('.dropdown__links').find('.dropdown__link').removeClass('active')
+            $this.addClass('active')
+
+            $this.parents('.dropdown').find('.dropdown__employee-card').removeClass('active')
+            $this.parents('.dropdown').find('.dropdown__employee-card').eq($this.parents('.dropdown__link-wr').index()).addClass('active')
+
+        });
+    }
+};
+
+var dropdownEmployee = {
+    init: function () {
+        $(document).on("click", ".js-dropdown-employee", function () {
+            $(this).toggleClass("active")
+                .closest(".dropdown__item").find(".employee-cards").slideToggle();
+        });
+    }
+};
+
+var accordion = {
+    init: function () {
+        $(document).on("click", ".js-accordion__head", function () {
+
+            if (!$(this).siblings(".accordion__cont").is(":visible")) {
+                var head = $(this);
+                $(".accordion__head.active").removeClass("active");
+                $(".accordion__cont").slideUp();
+                $(this).addClass("active").siblings(".accordion__cont").slideDown(function () {
+
+                    if ($('.js-page-menu').length != 0 && $(".adaptive-flag").is(":visible") == false) {
+                        $("html, body").animate({scrollTop: head.offset().top - $('.js-page-menu').outerHeight() - $('.js-main-nav').outerHeight() - 10}, 500);
+                    } else if ($(".adaptive-flag").is(":visible") == false) {
+                        $("html, body").animate({scrollTop: head.offset().top - $('.js-main-nav').outerHeight() - 10}, 500);
+                    } else {
+                        $("html, body").animate({scrollTop: head.offset().top - 10}, 500);
+                    }
+                });
+            }
+            else {
+                $(this).removeClass("active").siblings(".accordion__cont").slideUp();
+            }
+            if(!$('.js-accordion__head').hasClass('active')){
+                $('.js-btn-accord').css({transform: 'translateY(0)'});
+                $('.btn-ul-translate').css({transform: 'translateY(0px)'});
+
+            }
+        });
+
+
+        $(document).on("click", ".js-accordion-show", function () {
+            var item = $(this).closest(".accordion__view-all"),
+                itemCl = item.closest(".accordion").find(".accordion__head"),
+                itemSlide = itemCl.siblings(".accordion__cont"),
+                arrow = $('.js-btn-accord'),
+                text = $('.btn-ul-translate');
+
+            if (!item.hasClass('show') || !itemCl.hasClass('active')) {
+                item.addClass("show");
+                itemCl.addClass("active");
+                itemSlide.slideDown();
+                arrow.css({transform: 'rotate(180deg)'});
+                text.css({transform: 'translateY(-31px)'});
+            }
+
+            else{
+                item.removeClass("show");
+                itemCl.removeClass("active");
+                itemSlide.slideUp();
+                arrow.css({transform: 'rotate(0deg)'});
+                text.css({transform: 'translateY(0px)'});
+            }
+
+        });
+
+
+
+
+
+
+        var wnd = $(window),
+            widConr = $('.tabs1__item');
+        wnd.scroll(function () {
+            var top = wnd.scrollTop();
+            if(top>100 && $(window).width() >= 1023){
+                widConr.addClass('tabs1__item-block-width-js');
+            }else if(top<100){
+                widConr.removeClass('tabs1__item-block-width-js');
+            }
+
+        })
+
+
+
+    }
+};
+
+
+var accordionNoAnimation = {
+    init: function () {
+        $(document).on("click", ".js-accordion__head-no-anim", function () {
+            if (!$(this).siblings(".accordion__cont").is(":visible")) {
+                var head = $(this);
+                $(".accordion__head.active").removeClass("active");
+                $(".accordion__cont").slideUp();
+                $(this).addClass("active").siblings(".accordion__cont").slideDown();
+            }
+            else {
+                $(this).removeClass("active").siblings(".accordion__cont").slideUp();
+            }
+        });
+    }
+};
+
+var helpNote = {
+    init: function () {
+        $(document).on("mouseover", ".js-help-note", function () {
+            if (!$(this).find(".help-note__tooltip").is(":visible")) {
+                $(".help-note__tooltip").fadeOut();
+                $(this).find(".help-note__tooltip").fadeIn();
+            }
+        });
+        $(document).on("mouseup", function (e) {
+            if (!$(e.target).closest(".help-note").length) {
+                $(".help-note__tooltip").fadeOut();
+            }
+        });
+    }
+};
+
+var NewsGal = function () {
+    var _this = this;
+    this.initFlag = false;
+    this.initFlagMod1 = false;
+    this.sliders = [];
+    this.slidersMod1 = [];
+    this.init = function () {
+        var newsGal = $(".js-news-gal");
+        var newsGalMod1 = $(".js-news-gal-mod");
+        var newsGalMod2 = $('.js-news-gal-mod-2');
+        if (newsGal.length && !_this.initFlag) {
+            newsGal.each(function (index) {
+                var uniqSliderClass = "news-gal-" + index,
+                    uniqPrevClass = "news-gal__prev-" + index,
+                    uniqNextClass = "news-gal__next-" + index;
+                $(this).addClass(uniqSliderClass);
+                $(this).siblings(".news-gal__prev").addClass(uniqPrevClass);
+                $(this).siblings(".news-gal__next").addClass(uniqNextClass);
+                _this.sliders[index] = new Swiper('.' + uniqSliderClass, {
+                    speed: 400,
+                    slidesPerView: 4,
+                    spaceBetween: 32,
+                    simulateTouch: false,
+                    loop: false,
+                    prevButton: '.' + uniqPrevClass,
+                    nextButton: '.' + uniqNextClass
+                });
+            });
+            _this.initFlag = true;
+        }
+        if (newsGalMod1.length && !_this.initFlagMod1) {
+            newsGalMod1.each(function (index) {
+                var uniqSliderClass = "news-gal--mod1" + index,
+                    uniqPrevClass = "news-gal__prev--mod1-" + index,
+                    uniqNextClass = "news-gal__next--mod1-" + index;
+                $(this).addClass(uniqSliderClass);
+                $(this).siblings(".news-gal__prev--mod1").addClass(uniqPrevClass);
+                $(this).siblings(".news-gal__next--mod1").addClass(uniqNextClass);
+
+                // var swiperSlidesCount = '.' + uniqSliderClass + ' .swiper-slide';
+                //
+                // if($(swiperSlidesCount).length < 4) {
+                //   $('.swiper-button-disabled').hide();
+                // }
+
+                _this.slidersMod1[index] = new Swiper('.' + uniqSliderClass, {
+                    speed: 400,
+                    slidesPerView: 3,
+                    spaceBetween: 32,
+                    simulateTouch: false,
+                    autoHeight: true,
+                    loop: false,
+                    prevButton: '.' + uniqPrevClass,
+                    nextButton: '.' + uniqNextClass,
+                    breakpoints: {
+                        1023: {
+                            slidesPerView: 3,
+                            spaceBetween: 32
+                        },
+                        800: {
+                            slidesPerView: 2,
+                            spaceBetween: 32
+                        },
+                        460: {
+                            slidesPerView: 1,
+                            spaceBetween: 32
+                        }
+                    }
+                });
+            });
+            _this.initFlagMod1 = true;
+        }
+        if (newsGalMod2.length && !_this.initFlagMod1) {
+            newsGalMod2.each(function (index) {
+                var uniqSliderClass = "news-gal--mod2" + index,
+                    uniqPrevClass = "news-gal__prev--mod2-" + index,
+                    uniqNextClass = "news-gal__next--mod2-" + index;
+                $(this).addClass(uniqSliderClass);
+                $(this).siblings(".news-gal__prev--mod2").addClass(uniqPrevClass);
+                $(this).siblings(".news-gal__next--mod2").addClass(uniqNextClass);
+
+
+                _this.slidersMod1[index] = new Swiper('.' + uniqSliderClass, {
+                    speed: 400,
+                    slidesPerView: 4,
+                    spaceBetween: 32,
+                    simulateTouch: false,
+                    autoHeight: true,
+                    loop: false,
+                    prevButton: '.' + uniqPrevClass,
+                    nextButton: '.' + uniqNextClass,
+                    breakpoints: {
+                        1023: {
+                            slidesPerView: 4,
+                            spaceBetween: 32
+                        },
+                        800: {
+                            slidesPerView: 2,
+                            spaceBetween: 32
+                        },
+                        460: {
+                            slidesPerView: 1,
+                            spaceBetween: 32
+                        }
+                    }
+                });
+            });
+            _this.initFlagMod1 = true;
+        }
+    };
+};
+
+
+
+var cardListMore = {
+    init: function () {
+        $(document).on("click", ".js-card-list__item-more", function () {
+            $(this).closest(".card-list__item-bottom").toggleClass("more");
+        });
+    }
+};
+
+var creeditCardsMore = {
+    init: function () {
+        $(document).on("click", ".js-creedit-cards__item-more", function () {
+            $(this).closest(".creedit-cards__item-bottom").toggleClass("more");
+        });
+    }
+};
+
+var mainSlider = {
+    init: function () {
+        var sliderBG = new Swiper(".js-main-promo-slider__bg", {
+            speed: 400,
+            slidesPerView: 1,
+            effect: 'fade',
+            fade: {crossFade: true},
+            simulateTouch: false,
+            touchMoveStopPropagation: false,
+            shortSwipes: false,
+            longSwipes: false,
+            loop: true
+        });
+        var slider = new Swiper(".js-main-slider", {
+            speed: 400,
+            autoplay: 5000,
+            slidesPerView: 1,
+            effect: 'fade',
+            fade: {crossFade: true},
+            simulateTouch: false,
+            pagination: '.main-promo-slider-pagin',
+            paginationClickable: true,
+            paginationBulletRender: function (swiper, index, className) {
+                className += " dots__item";
+                return '<div class="' + className + '" ></div>';
+            },
+            onSlideChangeStart: function (e) {
+                sliderBG.slideTo(e.activeIndex);
+            },
+            bulletActiveClass: 'active',
+            loop: true
+        });
+    }
+};
+
+var optimizeHover = {
+    init: function () {
+        var body = document.body,
+            timer;
+
+        window.addEventListener('scroll', function () {
+            clearTimeout(timer);
+            if (!body.classList.contains('disable-hover')) {
+                body.classList.add('disable-hover')
+            }
+
+            timer = setTimeout(function () {
+                body.classList.remove('disable-hover')
+            }, 500);
+        }, false);
+    }
+};
+
+var Slider2 = function () {
+    var _this = this;
+    this.initFlag = false;
+    this.sliders = [];
+    this.init = function () {
+        var sliders = $(".js-slider2");
+        if (sliders.length && !_this.initFlag) {
+            sliders.each(function (index) {
+                var uniqSliderClass = "slider2-" + index,
+                    uniqNavClass = "slider2__pagin-" + index;
+                $(this).addClass(uniqSliderClass)
+                    .find(".slider2__pagin").addClass(uniqNavClass);
+                _this.sliders[index] = new Swiper('.' + uniqSliderClass, {
+                    speed: 400,
+                    slidesPerView: 1,
+                    effect: 'slide',
+                    spaceBetween: 30,
+                    //simulateTouch: false,
+                    pagination: '.' + uniqNavClass,
+                    paginationClickable: true,
+                    autoHeight: true,
+                    paginationBulletRender: function (swiper, index, className) {
+                        className += " dots__item";
+                        return '<div class="' + className + '" ></div>';
+                    },
+                    bulletActiveClass: 'active',
+                    loop: true
+                });
+            });
+        }
+        _this.initFlag = true;
+    }
+};
+
+var Slider3 = function () {
+    var _this = this;
+    this.initFlag = false;
+    this.initFlagMod1 = false;
+    this.initFlagMod2 = false;
+    this.sliders = [];
+    this.slidersMod1 = [];
+    this.slidersMod2 = [];
+    this.init = function () {
+        var sliders = $(".js-slider3");
+        var slidersMod1 = $(".js-slider3--mod1");
+        var slidersMod2 = $(".js-slider3--mod2");
+        if (sliders.length && !_this.initFlag) {
+            sliders.each(function (index) {
+                var uniqSliderClass = "slider3-" + index,
+                    uniqNavClass = "slider3__pagin-" + index;
+                $(this).addClass(uniqSliderClass)
+                    .find(".slider3__pagin").addClass(uniqNavClass);
+                _this.sliders[index] = new Swiper('.' + uniqSliderClass, {
+                    speed: 400,
+                    slidesPerView: 1,
+                    effect: 'slide',
+                    spaceBetween: 30,
+                    simulateTouch: false,
+                    pagination: '.' + uniqNavClass,
+                    paginationClickable: true,
+                    paginationBulletRender: function (swiper, index, className) {
+                        className += " dots__item";
+                        return '<div class="' + className + '" ></div>';
+                    },
+                    bulletActiveClass: 'active',
+                    loop: true
+                });
+            });
+            _this.initFlag = true;
+        }
+        if (slidersMod1.length && !_this.initFlagMod1) {
+            slidersMod1.each(function (index) {
+                var uniqSliderClass = "slider3__inner--mod1-" + index,
+                    uniqNavClass = "slider3__pagin--mod1-" + index;
+                $(this).addClass(uniqSliderClass)
+                    .find(".slider3__pagin--mod1").addClass(uniqNavClass);
+                _this.slidersMod1[index] = new Swiper('.' + uniqSliderClass, {
+                    speed: 400,
+                    slidesPerView: 3,
+                    effect: 'slide',
+                    spaceBetween: 30,
+                    simulateTouch: false,
+                    pagination: '.' + uniqNavClass,
+                    paginationClickable: true,
+                    paginationBulletRender: function (swiper, index, className) {
+                        className += " dots__item";
+                        return '<div class="' + className + '" ></div>';
+                    },
+                    bulletActiveClass: 'active',
+                    loop: true,
+                    breakpoints: {
+                        1000: {
+                            slidesPerView: 2,
+                            spaceBetween: 30
+                        },
+                        640: {
+                            slidesPerView: 1,
+                            spaceBetween: 30
+                        }
+                    }
+                });
+            });
+            _this.initFlagMod1 = true;
+        }
+        if (slidersMod2.length && !_this.initFlagMod2) {
+
+            slidersMod2.each(function (index) {
+                var uniqSliderClass = "slider3__inner--mod2-" + index,
+                    uniqNavClass = "slider3__pagin--mod2-" + index;
+                $(this).addClass(uniqSliderClass)
+                    .find(".slider3__pagin--mod2").addClass(uniqNavClass);
+                _this.slidersMod1[index] = new Swiper('.' + uniqSliderClass, {
+                    speed: 400,
+                    slidesPerView: 2,
+                    effect: 'slide',
+                    spaceBetween: 30,
+                    simulateTouch: false,
+                    pagination: '.' + uniqNavClass,
+                    paginationClickable: true,
+                    paginationBulletRender: function (swiper, index, className) {
+                        className += " dots__item";
+                        return '<div class="' + className + '" ></div>';
+                    },
+                    bulletActiveClass: 'active',
+                    loop: true,
+                    breakpoints: {
+                        800: {
+                            slidesPerView: 1,
+                            spaceBetween: 30
+                        }
+                    }
+                });
+            });
+            _this.initFlagMod2 = true;
+        }
+    }
+};
+
+var Slider4 = function () {
+    var _this = this;
+    this.initFlag = false;
+    this.sliders = [];
+    this.init = function () {
+        var sliders = $(".js-slider4");
+        if (sliders.length && !_this.initFlag) {
+            sliders.each(function (index) {
+                var uniqSliderClass = "slider4-" + index,
+                    uniqNavClass = "slider4__pagin-" + index;
+                $(this).addClass(uniqSliderClass)
+                    .find(".slider4__pagin").addClass(uniqNavClass);
+                _this.sliders[index] = new Swiper('.' + uniqSliderClass, {
+                    speed: 400,
+                    slidesPerView: 5,
+                    effect: 'slide',
+                    spaceBetween: 100,
+                    pagination: '.' + uniqNavClass,
+                    paginationClickable: true,
+                    paginationBulletRender: function (swiper, index, className) {
+                        className += " dots__item";
+                        return '<div class="' + className + '" ></div>';
+                    },
+                    bulletActiveClass: 'active',
+                    loop: false,
+                    breakpoints: {
+                        1565: {
+                            slidesPerView: 5,
+                            spaceBetween: 60,
+                        },
+                        1279: {
+                            slidesPerView: 4,
+                            spaceBetween: 80,
+                        },
+                        1023: {
+                            slidesPerView: 3,
+                            spaceBetween: 80,
+                        },
+                        768: {
+                            slidesPerView: 3,
+                            spaceBetween: 60,
+                        },
+                        639: {
+                            slidesPerView: 2,
+                            spaceBetween: 30,
+                        },
+                        400: {
+                            slidesPerView: 1,
+                            spaceBetween: 0,
+                        }
+                    }
+                });
+            });
+        }
+        _this.initFlag = true;
+    }
+};
+
+var slider5 = {
+    init: function () {
+        var slider5 = $(".js-slider5");
+        slider5.each(function (index) {
+            $(this).addClass("slider5-" + index);
+            $(this).find(".slider5__cont").addClass("slider5__cont-" + index);
+            $(this).find(".slider5__images").addClass("slider5__images-" + index);
+            $(this).find(".slider5__prev").addClass("slider5__prev-" + index);
+            $(this).find(".slider5__next").addClass("slider5__next-" + index);
+        });
+        slider5.each(function (index) {
+            var slideImg = new Swiper(".slider5__images-" + index, {
+                speed: 400,
+                slidesPerView: 1,
+                effect: 'fade',
+                fade: {crossFade: true},
+                simulateTouch: false,
+                touchMoveStopPropagation: false,
+                shortSwipes: false,
+                longSwipes: false,
+                loop: true,
+                autoplay: false
+            });
+            var slider = new Swiper(".slider5__cont-" + index, {
+                speed: 400,
+                autoplay: 5000,
+                slidesPerView: 1,
+                // effect: 'fade',
+                // fade: {crossFade: false},
+                simulateTouch: false,
+                touchMoveStopPropagation: false,
+                onSlideChangeStart: function (e) {
+                    slideImg.slideTo(e.activeIndex);
+                },
+                bulletActiveClass: 'active',
+                prevButton: '.slider5__prev-' + index,
+                nextButton: '.slider5__next-' + index,
+                loop: true,
+                autoplay: false
+            });
+        });
+    }
+};
+
+var dropdownBtn = {
+    init: function () {
+        $(document).on("click", ".js-dropdown-btn", function () {
+            $(this).closest(".dropdown-btn").toggleClass("active")
+                .find(".dropdown-btn__drop").fadeToggle();
+        });
+        $(document).on("mouseup", function (e) {
+            if (!$(e.target).closest(".dropdown-btn").length) {
+                $(".dropdown-btn__drop").fadeOut();
+                $(".dropdown-btn").removeClass("active");
+            }
+        });
+    }
+};
+
+// script for faq page
+var openAccordFaq = {
+    init: function () {
+        var anc = window.location.hash;
+        if (anc != "" && anc.indexOf("faq-item") >= 0) {
+            var target = $(anc);
+            if (target) {
+                target.find(".accordion__head").addClass("active").siblings(".accordion__cont").show();
+            }
+        }
+    }
+};
+
+var CommitCalc = function () {
+    this.init = function () {
+        $(document).on("click", ".js-commit-calc__field-add", function () {
+            var calcWrap = $(this).closest(".commit-calc");
+            var inputs = calcWrap.find(".input");
+            if (inputs.length == 4) {
+                $(this).hide();
+            }
+            var newInput = inputs.eq(inputs.length - 1).clone();
+            newInput.find("input").val("");
+            inputs.eq(inputs.length - 1).after(newInput);
+        });
+    };
+    this.shoreMoreBtn = function () {
+        if (!$(".commit-calc__add-link").is(":visible")) {
+            $(".commit-calc__add-link").show();
+        }
+    }
+};
+
+var deleteInput = {
+    init: function (commitCalcObj) {
+        $(document).on("click", ".js-input__delete", function () {
+            if ($(this.closest(".commit-calc"))) {
+                if ($(".commit-calc .input").length != 1) {
+                    $(this).closest(".input").remove();
+                }
+                commitCalcObj.shoreMoreBtn();
+            }
+        });
+    }
+};
+
+
+var sliderAboutRating = {
+    init: function () {
+        if ($('.js-slider-about-raiting').length != 0) {
+            var elServicesSwipper = new Swiper('.js-slider-about-raiting', {
+                pagination: '.js-about-raiting-pagination',
+                paginationClickable: true,
+                paginationBulletRender: function (swiper, index, className) {
+                    className += " dots__item";
+                    return '<div class="' + className + '" ></div>';
+                },
+                bulletActiveClass: 'active',
+                slidesPerView: 3,
+                spaceBetween: 30,
+                loop: false,
+                grabCursor: true,
+                breakpoints: {
+                    1024: {
+                        slidesPerView: 2
+                    },
+                    639: {
+                        slidesPerView: 1
+                    }
+                }
+            });
+
+            if ($('.js-slider-about-raiting .swiper-slide').length < 4) {
+                $('.js-about-raiting-pagination').hide();
+            }
+        }
+    }
+}
+
+var gozFormValidate = {
+    init: function () {
+        if ($('.goz-form').length) {
+            $("#phone").mask("+7 (999) 999-99-99", {placeholder: "+7 (___) ___-__-__"});
+            $('#goz-form').validate({
+                rules: {
+                    radio: {
+                        required: true
+                    },
+                    company: {
+                        required: true,
+                        minlength: 2
+                    },
+                    manager: {
+                        required: true,
+                        minlength: 2
+                    },
+                    phone: {
+                        required: true
+                    },
+                    place_registr: {
+                        required: true,
+                        minlength: 2
+                    },
+                    email: {
+                        required: true,
+                        email: true
+                    },
+                    inn: {
+                        required: true,
+                        digits: true,
+                        minlength: 12,
+                        maxlength: 12
+                    },
+                    kipp: {
+                        required: true,
+                        digits: true,
+                        minlength: 9,
+                        maxlength: 9
+                    },
+                    ogrn: {
+                        required: true,
+                        digits: true,
+                        minlength: 13,
+                        maxlength: 13
+                    },
+                    okved: {
+                        required: true,
+                        minlength: 13
+                    },
+                    okfs: {
+                        required: true,
+                        minlength: 5
+                    }
+                },
+                messages: {
+                    radio: {
+                        required: "Выберите один из пунктов"
+                    },
+                    company: {
+                        required: "Поле, обязательное для заполнения",
+                        minlength: "Введите не менее 2-х символов"
+                    },
+                    manager: {
+                        required: "Поле, обязательное для заполнения",
+                        minlength: "Введите не менее 2-х символов"
+                    },
+                    phone: {
+                        required: "Поле, обязательное для заполнения"
+                    },
+                    place_registr: {
+                        required: "Поле, обязательное для заполнения",
+                        minlength: "Введите не менее 2-х символов"
+                    },
+                    email: {
+                        required: "Поле, обязательное для заполнения",
+                        email: "Введите корректный email"
+                    },
+                    inn: {
+                        required: "Поле, обязательное для заполнения",
+                        digits: "Введите только цифры",
+                        minlength: "Введите 12 символов",
+                        maxlength: "Введите 12 символов"
+                    },
+                    kipp: {
+                        required: "Поле, обязательное для заполнения",
+                        digits: "Введите только цифры",
+                        minlength: "Введите 9 символов",
+                        maxlength: "Введите 9 символов"
+                    },
+                    ogrn: {
+                        required: "Поле, обязательное для заполнения",
+                        digits: "Введите только цифры",
+                        minlength: "Введите 13 символов",
+                        maxlength: "Введите 13 символов"
+                    },
+                    okved: {
+                        required: "Поле, обязательное для заполнения",
+                        minlength: "Введите не менее 13 символов"
+                    },
+                    okfs: {
+                        required: "Поле, обязательное для заполнения",
+                        minlength: "Введите не менее 5 символов"
+                    }
+                },
+                focusCleanup: true,
+                focusInvalid: false,
+                submitHandler: function (form) {
+                    // do something here
+                }
+            });
+        }
+    }
+};
+
+var slider6 = {
+    init: function () {
+        var slider6 = $(".js-slider6");
+        slider6.each(function (index) {
+            $(this).addClass("slider6-" + index);
+            $(this).find(".slider6__inner").addClass("slider6__inner-" + index);
+            $(this).find(".slider6__prev").addClass("slider6__prev-" + index);
+            $(this).find(".slider6__next").addClass("slider6__next-" + index);
+        });
+        slider6.each(function (index) {
+            var slider = new Swiper(".slider6__inner-" + index, {
+                speed: 400,
+                slidesPerView: 1,
+                effect: 'fade',
+                fade: {crossFade: true},
+                simulateTouch: false,
+                touchMoveStopPropagation: false,
+                bulletActiveClass: 'active',
+                prevButton: '.slider6__prev-' + index,
+                nextButton: '.slider6__next-' + index,
+                loop: true
+            });
+        });
+    }
+};
+
+var creditListDetails = {
+    init: function () {
+        $(document).on("click", ".js-credit-list__details", function (e) {
+            e.preventDefault();
+            $(this).closest(".credit-list__item").toggleClass("show-detils");
+        });
+    }
+};
+
+var loginValidate = {
+    init: function () {
+        var formObj = $('.js-login-form');
+        if (formObj.length) {
+            formObj.validate({
+                rules: {
+                    login: {
+                        required: true
+                    },
+                    pass: {
+                        required: true,
+                        minlength: 7
+                    }
+                },
+                messages: {
+                    login: {
+                        required: "Поле, обязательное для заполнения"
+                    },
+                    pass: {
+                        required: "Поле, обязательное для заполнения",
+                        minlength: "Введите не менее 7-х символов"
+                    }
+                },
+                focusCleanup: true,
+                focusInvalid: false,
+                submitHandler: function (form) {
+                    // do something here
+                }
+            });
+        }
+    }
+};
+
+var OpenPopup = function () {
+    var _this = this;
+    this.init = function () {
+        $(document).on("click", ".js-open-popup", function () {
+            _this.popupId = $(this).data("popup-id");
+            _this.openedPopup = $("#" + _this.popupId);
+            _this.openedPopup.fadeIn(function () {
+                _this.setMaxHeightPopup();
+            });
+        });
+        $(document).on("click", ".js-popup-close", function () {
+            $(this).closest(".popup__inner-cont").css("maxHeight", "").closest(".popup").fadeOut();
+        });
+        $(document).on("click", ".js-change-reg-type", function () {
+            var type = $(this).data("reg-type");
+            if (!$('.form-dbo__reg-type[data-reg-type=' + type + ']').is(":visible")) {
+                $('.form-dbo__reg-type').hide();
+                $('.form-dbo__reg-type[data-reg-type=' + type + ']').show();
+            }
+        });
+        $(window).resize(function () {
+            if (_this.popupId) {
+                _this.setMaxHeightPopup();
+            }
+        });
+    };
+    this.setMaxHeightPopup = function () {
+        var cont = _this.openedPopup.find(".popup__inner-cont");
+        if (cont.length) {
+            cont.css("maxHeight", _this.openedPopup.find(".popup__inner").height());
+        }
+    }
+};
+
+var recovPass = {
+    init: function () {
+        var formObj = $(".js-pass-recovery");
+        if (formObj.length) {
+            formObj.validate({
+                rules: {
+                    login_recov: {
+                        required: true,
+                        minlength: 2
+                    }
+                },
+                messages: {
+                    login_recov: {
+                        required: "Поле, обязательное для заполнения",
+                        minlength: "Введите не менее 2-х символов"
+                    }
+                },
+                focusCleanup: true,
+                focusInvalid: false,
+                submitHandler: function (form) {
+                    // do something here
+                }
+            });
+        }
+    }
+};
+
+var RegForm = function () {
+    this.init = function () {
+        $("#phone-reg").mask("+7 (999) 999-99-99", {placeholder: "+7 (___) ___-__-__"});
+        $.validator.methods.birthday = function (value, element) {
+            return this.optional(element) || /^[0-9]{2}\.[0-9]{2}\.[0-9]{4}$/.test(value);
+        };
+        var formObjType1 = $(".js-reg-form-type-1");
+        var formObjType2 = $(".js-reg-form-type-2");
+        if (formObjType1.length) {
+            $("#birthday").Zebra_DatePicker({
+                format: 'd.m.Y',
+                header_navigation: ['<svg class="datepicker__left">\
+                                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/local/templates/main/icons/sprite.svg#arr-slider-sm-left"></use>\
+                                    </svg>',
+                    '<svg class="datepicker__right">\
+                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/local/templates/main/icons/sprite.svg#arr-slider-sm-right"></use>\
+                    </svg>']
+            });
+            formObjType1.validate({
+                rules: {
+                    surname: {
+                        required: true,
+                        minlength: 2
+                    },
+                    reg_name: {
+                        required: true,
+                        minlength: 2
+                    },
+                    middle_name: {
+                        required: true,
+                        minlength: 2
+                    },
+                    birthday: {
+                        required: true,
+                        birthday: 8
+                    },
+                    card_num: {
+                        required: true,
+                        digits: 4
+                    }
+                },
+                messages: {
+                    surname: {
+                        required: "Поле, обязательное для заполнения",
+                        minlength: "Введите не менее 2-х символов"
+                    },
+                    reg_name: {
+                        required: "Поле, обязательное для заполнения",
+                        minlength: "Введите не менее 2-х символов"
+                    },
+                    middle_name: {
+                        required: "Поле, обязательное для заполнения",
+                        minlength: "Введите не менее 2-х символов"
+                    },
+                    birthday: {
+                        required: "Поле, обязательное для заполнения",
+                        birthday: "Введите цифры в формате 11.11.2012"
+                    },
+                    card_num: {
+                        required: "Поле, обязательное для заполнения",
+                        digits: "Введите цифры в формате 1111"
+                    }
+                },
+                focusCleanup: true,
+                focusInvalid: false,
+                submitHandler: function (form) {
+                    // do something here
+                }
+            });
+        }
+        if (formObjType2.length) {
+            formObjType2.validate({
+                rules: {
+                    reg_name_type2: {
+                        required: true,
+                        minlength: 2
+                    },
+                    login_reg: {
+                        required: true,
+                        minlength: 2
+                    },
+                    pass_reg: {
+                        required: true,
+                        minlength: 7
+                    },
+                    pass_reg_conf: {
+                        required: true,
+                        minlength: 7
+                    },
+                    phone_reg: {
+                        required: true
+                    },
+                    email_reg: {
+                        required: true,
+                        email: true
+                    }
+                },
+                messages: {
+                    reg_name_type2: {
+                        required: "Поле, обязательное для заполнения",
+                        minlength: "Введите не менее 2-х символов"
+                    },
+                    login_reg: {
+                        required: "Поле, обязательное для заполнения",
+                        minlength: "Введите не менее 2-х символов"
+                    },
+                    pass_reg: {
+                        required: "Поле, обязательное для заполнения",
+                        minlength: "Введите не менее 7-х символов"
+                    },
+                    pass_reg_conf: {
+                        required: "Поле, обязательное для заполнения",
+                        minlength: "Введите не менее 7-х символов"
+                    },
+                    phone_reg: {
+                        required: "Поле, обязательное для заполнения"
+                    },
+                    email_reg: {
+                        required: "Поле, обязательное для заполнения",
+                        email: "Введите корректный email"
+                    }
+                },
+                focusCleanup: true,
+                focusInvalid: false,
+                submitHandler: function (form) {
+                    // do something here
+                }
+            });
+        }
+    };
+};
+
+var depositDrop = {
+    init: function () {
+        $(document).on("click", ".js-deposit__drop", function () {
+            $(this).closest(".deposit__drop-head").toggleClass("active")
+                .closest(".deposit").find(".deposit__drop-cont").slideToggle();
+        });
+        $(document).on("click", ".js-deposit__more", function () {
+            $(this).toggleClass("active").closest(".deposit").find(".deposit__left-cont").slideToggle();
+        });
+
+    }
+};
+
+var slider7 = {
+    init: function () {
+        var slider7 = $(".js-slider7");
+        slider7.each(function (index) {
+            $(this).addClass("slider7-" + index);
+            $(this).find(".slider7__inner").addClass("slider7__inner-" + index);
+            $(this).find(".slider7__prev").addClass("slider7__prev-" + index);
+            $(this).find(".slider7__next").addClass("slider7__next-" + index);
+        });
+        slider7.each(function (index) {
+            var slider = new Swiper(".slider7__inner-" + index, {
+                speed: 400,
+                slidesPerView: 3,
+                spaceBetween: 40,
+                simulateTouch: false,
+                touchMoveStopPropagation: false,
+                bulletActiveClass: 'active',
+                prevButton: '.slider7__prev-' + index,
+                nextButton: '.slider7__next-' + index,
+                loop: true
+            });
+        });
+    }
+};
+
+var contactsListMore = {
+    init: function () {
+        $(document).on("click", ".js-contacts-list__more", function () {
+            $(this).toggleClass("active")
+                .closest(".contacts-list__item").find(".contacts-list__item-hidden").slideToggle();
+        });
+    }
+};
+
+/*var UploadFiles = function() {
+    var _this = this;
+    var allFiles = 0;
+    this.init = function() {
+        $(".js-input-upload__file-btn").change(function() {
+            var $btn = $(this);
+            var val = $(this).val();
+            var fileName = val.substr($(this).val().lastIndexOf("\\") + 1);
+            if(allFiles < 5) {
+                allFiles ++;
+                var $newString = '<div class="input-upload__file">\
+                                        <svg class="input-upload__file-doc">\
+                                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/local/templates/main/icons/sprite.svg#doc-min"></use>\
+                                        </svg>\
+                                        <div class="input-upload__file-text">' + fileName + '</div>\
+                                        <div class="input-upload__file-delete-wr">\
+                                            <svg class="input-upload__file-delete js-input-upload__file-delete">\
+                                                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/local/templates/main/icons/sprite.svg#close-mini"></use>\
+                                            </svg>\
+                                        </div>\
+                                    </div>';
+                $btn.closest(".input-upload").find(".input-upload__files").append($newString);
+            }
+        });
+        $(document).on("click", ".js-input-upload__file-delete", function() {
+            if(allFiles > 0) {
+                allFiles--;
+                $(this).closest(".input-upload__file").remove();
+            }
+        });
+    };
+};*/
+
+var UploadFiles = function () {
+    var _this = this;
+    var allFiles = 0;
+    this.init = function () {
+        $(".js-input-upload__file-btn-1").change(function () {
+            var $btn = $(this);
+            var val = $(this).val();
+            var fileName = val.substr($(this).val().lastIndexOf("\\") + 1);
+            if (allFiles < 5) {
+                allFiles++;
+
+                $btn.hide();
+
+                $btn.parents('.input-upload').find('.input-upload__file').eq($btn.index()).find('.input-upload__file-text').text(fileName);
+                $btn.parents('.input-upload').find('.input-upload__file').eq($btn.index()).show();
+
+            }
+        });
+        $(document).on("click", ".js-input-upload__file-delete", function () {
+            if (allFiles > 0) {
+                allFiles--;
+
+                $(this).closest(".input-upload__file").hide();
+
+                $(this).parents('.input-upload').find('.input-upload__file-btn').eq($(this).closest(".input-upload__file").index()).val('').show();
+
+            }
+        });
+
+
+        //generate upload items
+        var nFileCount;
+        $('.js-upload-anchor').each(function () {
+            $(this).data('files-count', 0);
+        })
+
+        $('.js-upload-anchor').on('click', function (e) {
+            e.preventDefault();
+            nFileCount = $(this).data('files-count');
+
+            if (nFileCount < 5) {
+                nFileCount++;
+
+                $(this).data('files-count', nFileCount);
+
+                $(this).parent().append('<div class="js-file-wrap"><input name="PROPERTY[' + $(this).closest('.js-formid').attr('data-propid') + '][n' + nFileCount + ']" value="" type="hidden"><input class="input-upload__file-file js-open-file-' + nFileCount + '" name="PROPERTY_FILE_' + $(this).closest('.js-formid').attr('data-propid') + '_n' + nFileCount + '" type="file"><div class="input-upload__file"><svg class="input-upload__file-doc"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/local/templates/main/icons/sprite.svg#doc-min"></use></svg><div class="input-upload__file-text"></div><div class="input-upload__file-delete-wr"><svg class="input-upload__file-delete js-file-delete"> <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/local/templates/main/icons/sprite.svg#close-mini"></use></svg></div></div></div>');
+
+                $('.js-open-file-' + nFileCount).on('change', function () {
+                    var $this = $(this);
+                    $this.next().show().find('.input-upload__file-text').text($this.val().substr($(this).val().lastIndexOf("\\") + 1));
+                });
+                $('.js-open-file-' + nFileCount).trigger('click');
+            }
+        });
+
+        $(document).on('click', '.js-file-delete', function () {
+            var $anchor = $(this).closest('.input-upload__file-btn-wr').find('.js-upload-anchor');
+            $anchor.data('files-count', $anchor.data('files-count') - 1);
+
+            $(this).siblings('[class *= "js-open-file-"]').off('change');
+            $(this).closest('.js-file-wrap').remove();
+        });
+
+    };
+};
+
+var smiMasonry = {
+    init: function () {
+        $('.js-ajax-container').imagesLoaded(function () {
+            $('.js-news-gal-msaonry').masonry({
+                // options
+                itemSelector: '.news-gal__item',
+                columnWidth: '.news-gal__item',
+            });
+        });
+    }
+};
+
+var filterCalendar = {
+    init: function () {
+        var objMonthsDays = {
+            months_ru: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+            months_en: ['January', 'February', 'March', 'April', 'May', 'june', 'July', 'August', 'September', 'October', 'November', 'December'],
+            days_ru: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+            days_en: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+        };
+        var _this = this;
+        $(".date-filter-1").each(function () {
+            $(this).Zebra_DatePicker({
+                direction: 0,
+                pair: $('.date-filter-2'),
+                format: 'd.m.Y',
+                readonly_element: false,
+                months: objMonthsDays['months_' + BX.message('LANGUAGE_ID')],
+                days: objMonthsDays['days_' + BX.message('LANGUAGE_ID')],
+                header_navigation: ['<svg class="datepicker__left">\
+                                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/local/templates/main/icons/sprite.svg#arr-slider-sm-left"></use>\
+                                    </svg>',
+                    '<svg class="datepicker__right">\
+                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/local/templates/main/icons/sprite.svg#arr-slider-sm-right"></use>\
+                    </svg>'],
+                onSelect: function () {
+                    if ($(this).data('ajax') == 'Y')
+                        _this.filter($(this));
+                }
+            });
+        });
+        $(".date-filter-2").each(function () {
+            $(this).Zebra_DatePicker({
+                direction: 0,
+                format: 'd.m.Y',
+                readonly_element: false,
+                months: objMonthsDays['months_' + BX.message('LANGUAGE_ID')],
+                days: objMonthsDays['days_' + BX.message('LANGUAGE_ID')],
+                header_navigation: ['<svg class="datepicker__left">\
+                                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/local/templates/main/icons/sprite.svg#arr-slider-sm-left"></use>\
+                                    </svg>',
+                    '<svg class="datepicker__right">\
+                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/local/templates/main/icons/sprite.svg#arr-slider-sm-right"></use>\
+                    </svg>'],
+                onSelect: function () {
+                    if ($(this).data('ajax') == 'Y')
+                        _this.filter($(this));
+                }
+            });
+        });
+    },
+    filter: function (element) {
+        var form = element.closest('form');
+        $.get('?' + form.serialize(), function (data) {
+            $('.js-ajax-container').html(data);
+        });
+    }
+};
+
+var fileLinkPrint = {
+    init: function () {
+        $(document).on("click", ".js-file-link-popup", function (e) {
+            if (!$(e.target).closest(".file-link__popup").length) {
+                $(this).find(".file-link__popup").fadeToggle();
+            }
+        });
+        $(document).on("mouseup", function (e) {
+            if (!$(e.target).closest(".file-link__popup").length && !$(e.target).closest(".file-link").length) {
+                $(".file-link__popup").fadeOut();
+            }
+        });
+    }
+};
+
+var FaqPopup = function () {
+    var _this = this;
+    var $popup = $(".faq-popup");
+    var $popupInner = $popup.find(".faq-popup__inner");
+    var maxHeight = 0.8;
+    this.init = function () {
+        $(document).on("click", ".js-faq-popup", function (e) {
+            e.preventDefault();
+            $popup.fadeIn();
+            _this.setPopupHeight();
+            $("body").addClass('no-scroll');
+        });
+        $(document).on("click", ".js-faq-popup__close", function () {
+            $popup.fadeOut();
+            $("body").removeClass('no-scroll');
+        });
+        $(document).on("mouseup", function (e) {
+            if ($(".faq-popup:visible").length && !$(e.target).closest(".faq-popup__icon-close").length && !$(e.target).closest(".faq-popup__cont").length) {
+                $popup.fadeOut();
+                $("body").removeClass('no-scroll');
+            }
+        });
+    };
+    this.setPopupHeight = function () {
+        $popupInner.css("height", "");
+        if ($(window).height() * maxHeight <= $popupInner.outerHeight()) {
+            $popupInner.height($(window).height() * maxHeight);
+        }
+    };
+    $(window).resize(_this.setPopupHeight);
+};
+
+var CurrencyMore = function () {
+    var _this = this;
+    var $popup = $(".currency-popup");
+    var $popupInner = $popup.find(".currency-popup__inner");
+    var maxHeight = 0.8;
+    this.init = function () {
+        $('.js-currency-popup__wrap').on('click', function (e) {
+            if (e.target == this) {
+                $(this).closest(".currency-popup").fadeOut();
+                $("body").removeClass('no-scroll');
+            }
+        });
+
+        $(document).on("click", ".js-currency-more", function (e) {
+            e.preventDefault();
+            $popup.fadeIn();
+            _this.setPopupHeight();
+            $("body").addClass('no-scroll');
+            console.log('123')
+        });
+        $(document).on("click", ".js-currency-popup__close", function () {
+            $(this).closest(".currency-popup").fadeOut();
+            $("body").removeClass('no-scroll');
+        });
+    };
+    this.setPopupHeight = function () {
+        $popupInner.css("height", "");
+        if ($(window).height() * maxHeight <= $popupInner.outerHeight()) {
+            $popupInner.height($(window).height() * maxHeight);
+        }
+    };
+    $(window).resize(_this.setPopupHeight);
+};
+
+var CurrencyCalcSwitch = function () {
+    var _this = this;
+    var $curSect = $(".currency-sect");
+    var $curCalc = $(".currency-calc");
+    this.init = function () {
+        $(document).on("click", ".js-currency-calc", function () {
+            var minHeight = $curSect.outerHeight();
+            $curCalc.css("minHeight", minHeight);
+            $curSect.fadeOut(function () {
+                $curCalc.fadeIn().css("minHeight", "");
+            });
+        });
+        $(document).on("click", ".js-currency-sect", function () {
+            var minHeight = $curCalc.outerHeight();
+            $curSect.css("minHeight", minHeight);
+            $curCalc.fadeOut(function () {
+                $curSect.fadeIn().css("minHeight", "");
+            });
+        });
+    }
+};
+
+var HeaderCommunication = function () {
+    var _this = this;
+    var $popupCommun = $(".other-communication");
+    this.init = function () {
+        $(document).on("click", ".js-header__phone-text", function () {
+            $popupCommun.fadeToggle();
+        });
+        $(document).on("mouseup", function (e) {
+            if (!$(e.target).closest(".other-communication").length) {
+                $popupCommun.fadeOut();
+            }
+        });
+    }
+};
+
+var mainMenuToggle = {
+    init: function () {
+        var mainNav = $('.js-main-nav');
+
+        if ($(window).width() <= 1023 - scrollWidth()) {
+            mainNav.addClass('tabs1--mobile-menu');
+        } else {
+            mainNav.removeClass('tabs1--mobile-menu');
+        }
+
+        /*$(document).on('mouseenter', '.js-main-menu__item', function () {
+            if (!mainNav.hasClass('tabs1--mobile-menu')) {
+                var submenu = $(this).find('.main-submenu');
+
+                if (submenu.length) {
+                    submenu.stop().delay(200).fadeIn(250);
+                }
+            }
+        });
+
+
+        //main-promo
+        // $('li').mouseleave(function(e)
+        // {
+        //     // new element is: e.toElement || e.relatedTarget
+        // });
+        $(document).on('mouseleave', '.js-main-menu__item', function () {
+            if (!mainNav.hasClass('tabs1--mobile-menu')) {
+                var submenu = $(this).find('.main-submenu');
+                var submenuTitleLink = $(this).find('.main-submenu__title-link');
+                var submenuLinks = $(this).find('.main-submenu__links');
+
+                if (submenu.length) {
+                    submenu.stop().hide();
+                    submenu.stop().delay(201).hide();
+                    submenuTitleLink.removeClass('active');
+                    submenuLinks.slideUp();
+                }
+            }
+        });*/
+        function hover () {
+
+            var activeSubmenuIndex;
+            $('.js-main-menu__item').on('mouseenter',
+                function () {
+                    //return if it's the same button being hovered
+                    if ($(this).index() === activeSubmenuIndex) {
+                        return;
+                    }if($(window).width() > 1023) {
+                        //remove classes from other buttons, put on new active one
+                        $('.js-main-menu__item').removeClass('main-submenuHover');
+                        $('.js-main-submenu').removeClass('main-submenuHover');
+                        //add class for li element
+                        $(this).addClass('main-submenuHover');
+                        $(this).find($('.js-main-submenu')).addClass('main-submenuHover')
+                    }
+                });
+        }
+         hover();
+        function leave () {
+            var $main = $('.js-main-submenu');
+            if($(window).width()>1024){
+                $main.on('mouseleave', function () {
+                    $('.js-main-menu__item').removeClass('main-submenuHover');
+                    $('.js-main-submenu').removeClass('main-submenuHover');
+                })
+            }
+        }
+
+
+        leave();
+
+        //wrapper__inner
+
+
+
+
+
+
+
+
+
+        // $('.js-main-menu__item').on('click', function () {
+        //     if (mainNav.hasClass('tabs1--mobile-menu')) {
+        //         var $this = $(this);
+        //
+        //         $this.parents('.tabs1').find('.main-submenu').hide().removeClass('opened');
+        //         $this.find('.main-submenu').show().addClass('opened');
+        //         console.log('000');
+        //     }
+        // });
+
+        $('.js-tabs1__item-link').on('click touchstart', function (event) {
+            var $submenu = $(this).closest('.js-main-menu__item').find('.js-main-submenu');
+
+            var menuCl = $(this).parents('.tabs1__inner').find('.js-main-submenu');
+
+            if (!$submenu.hasClass('opened') && $(window).width() < 1024) {
+
+                    event.preventDefault();
+                    menuCl.hide(250).removeClass('opened');
+
+                    $submenu.fadeIn(250).addClass('opened');
+                }
+        });
+
+    }
+}
+
+var SimplePopup = function () {
+    var _this = this;
+    var maxHeight = 0.8;
+    this.init = function () {
+        $('.simple-popup__wrap').on('click', function (e) {
+            if (e.target == this) {
+                $(this).parent().fadeOut();
+                $("body").removeClass('no-scroll');
+                $(document).off('touchmove');
+            }
+        });
+
+        $(document).on("click", ".js-simple-popup", function (e) {
+            e.preventDefault();
+            var popupId = $(this).data("popup-id");
+            $("#" + popupId).fadeIn();
+            _this.setPopupHeight();
+            // $("body").addClass('no-scroll');
+        });
+        $(document).on("click", ".js-simple-popup__close", function () {
+            $(this).closest(".simple-popup").fadeOut();
+            $("body").removeClass('no-scroll');
+            $(document).off('touchmove');
+        });
+        /*$(document).on("mouseup", function(e) {
+            if($(".simple-popup:visible").length && !$(e.target).closest(".simple-popup__icon-close").length && !$(e.target).closest(".simple-popup__cont").length) {
+                $(".simple-popup:visible").fadeOut();
+                $("body").removeClass('no-scroll');
+            }
+        });*/
+    };
+    this.setPopupHeight = function () {
+        var $popupVis = $(".simple-popup:visible");
+        if ($popupVis.length) {
+            var $popupVisInner = $popupVis.find(".simple-popup__inner");
+            $popupVisInner.css("height", "");
+            if ($(window).height() * maxHeight <= $popupVisInner.outerHeight()) {
+                $popupVisInner.height($(window).height() * maxHeight);
+            }
+        }
+    };
+    $(window).resize(_this.setPopupHeight);
+
+    $('.js-feedback-popup').on('click', function (event) {
+
+        event.preventDefault()
+
+        $('#feedback-quest').css({'display': 'block', 'opacity': '0'});
+        _this.setPopupHeight();
+        $('#feedback-quest').animate({opacity: 1});
+        $('body').addClass('no-scroll');
+
+        $(document).on('touchmove', function (e) {
+            e.preventDefault();
+        });
+
+
+        $(document.body).on("touchstart", ".simple-popup__cont", function (e) {
+            // If the element is scrollable (content overflows), then...
+            if (this.scrollHeight !== this.clientHeight) {
+                // If we're at the top, scroll down one pixel to allow scrolling up
+                if (this.scrollTop === 0) {
+                    this.scrollTop = 1;
+                }
+                // If we're at the bottom, scroll up one pixel to allow scrolling down
+                if (this.scrollTop === this.scrollHeight - this.clientHeight) {
+                    this.scrollTop = this.scrollHeight - this.clientHeight - 1;
+                }
+            }
+            // Check if we can scroll
+            this.allowUp = this.scrollTop > 0;
+            this.allowDown = this.scrollTop < (this.scrollHeight - this.clientHeight);
+            this.lastY = e.originalEvent.pageY;
+        });
+
+        $(document.body).on('touchmove', ".simple-popup__cont", function (e) {
+            var event = e.originalEvent;
+            var up = event.pageY > this.lastY;
+            var down = !up;
+            this.lastY = event.pageY;
+
+            if ((up && this.allowUp) || (down && this.allowDown)) {
+                event.stopPropagation();
+            } else {
+                event.preventDefault();
+            }
+        });
+
+    });
+
+    $('.js-callback-popup').on('click', function (event) {
+
+        event.preventDefault()
+
+        $('#callback-form').css({'display': 'block', 'opacity': '0'});
+        _this.setPopupHeight();
+        $('#callback-form').animate({opacity: 1});
+        $('body').addClass('no-scroll');
+
+    });
+};
+
+var tabsWithSlider = {
+    init: function () {
+
+        var mainPageTabsSwiper = new Swiper('.js-news-main-page', {
+            nextButton: '.news-gal__next',
+            prevButton: '.news-gal__prev',
+            slidesPerView: 5,
+            spaceBetween: 40,
+            observer: true,
+            autoHeight: true,
+            breakpoints: {
+                1700: {
+                    slidesPerView: 4,
+                },
+                1279: {
+                    slidesPerView: 3,
+                },
+                1023: {
+                    slidesPerView: 2,
+                },
+                768: {
+                    slidesPerView: 2,
+                },
+                639: {
+                    slidesPerView: 1,
+                }
+            },
+            pagination: '.js-news-pagination',
+            paginationBulletRender: function (swiper, index, className) {
+                className += " news-gal__pagination-item";
+                return '<div class="' + className + '" ></div>';
+            },
+            paginationClickable: true,
+            bulletActiveClass: 'active'
+        });
+
+        $('.js-tabs3-with-slider').on('click', function () {
+
+            var $this = $(this)
+
+            if (!$this.hasClass('active')) {
+
+                $this.parents('.tabs3__tabs').find('.tabs3__tab').removeClass('active')
+                $this.addClass('active')
+
+                $this.parents('.tabs3').find('.tabs3__cont-item--slider').removeClass('active')
+                $this.parents('.tabs3').find('.tabs3__cont-item--slider').eq($this.index()).addClass('active')
+
+            }
+
+        })
+
+    }
+}
+
+var allContactsShow = {
+    init: function () {
+
+        $('.js-all-contacts-show').on('click', function (event) {
+
+            var $this = $(this)
+
+            event.preventDefault()
+
+            $this.trigger('blur');
+            $this.parents('.dropdown').find('.employee-card').addClass('active');
+            $this.parents('.dropdown').find('.employee-cards').slideToggle();
+
+        });
+
+    }
+}
+
+var blueSquaresSlider = {
+    init: function () {
+
+        if ($('.js-blue-squares .blue-squares__item').length > 3) {
+
+            $('.js-blue-squares').addClass('blue-squares--slider')
+
+            var blueSquaresSliderSwiper = new Swiper('.js-blue-squares .blue-squares__inner', {
+                nextButton: '.blue-squares__button-next',
+                prevButton: '.blue-squares__button-prev',
+                slidesPerView: 3,
+                spaceBetween: 0,
+                breakpoints: {
+                    1150: {
+                        slidesPerView: 2
+                    },
+                    640: {
+                        slidesPerView: 1
+                    }
+                }
+            });
+
+        }
+
+        if (($('.js-blue-squares .blue-squares__item').length > 1) && ($(window).width() < (1150 - scrollWidth()))) {
+
+            $('.js-blue-squares').addClass('blue-squares--slider')
+
+            var blueSquaresSliderSwiper = new Swiper('.js-blue-squares .blue-squares__inner', {
+                nextButton: '.blue-squares__button-next',
+                prevButton: '.blue-squares__button-prev',
+                slidesPerView: 3,
+                spaceBetween: 0,
+                breakpoints: {
+                    1150: {
+                        slidesPerView: 2
+                    },
+                    640: {
+                        slidesPerView: 1
+                    }
+                }
+            });
+
+        }
+    }
+}
+
+var fixedRightColumn = {
+    init: function () {
+        var $column = $('.js-fixed-block');
+        var offset = 120;
+        var isShouldSetFix = (
+            ($column.length > 0)
+            && ($('.js-right-column-breakepoint').length > 0)
+            && ($column.height() + offset < $('body').height())
+            && ($('.center-block__col-left').height() > $column.height())
+            && ($(window).width() > 1023));
+
+        if (isShouldSetFix) {
+            $(window).on('scroll', function () {
+                var $windowScrollHeight = $(window).scrollTop(),
+                    $columnHeight = $column.height(),
+                    $columnOffsetTop = $column.offset().top,
+                    $fixedBreakepoint = $('.js-right-column-breakepoint').offset().top - offset;
+
+                if (($fixedBreakepoint - $columnHeight) < $windowScrollHeight) {
+                    $column.css({'position': 'absolute', 'top': 'auto', 'bottom': '0'});
+                } else if ($columnOffsetTop < $windowScrollHeight) {
+                    $column.css({'position': 'fixed', 'top': '120px', 'bottom': 'auto'});
+                } else if (($windowScrollHeight < $column.parents('.center-block__col-right').offset().top)) {
+                    $column.css({'position': 'relative', 'top': '0'});
+                } else if (($fixedBreakepoint - $columnHeight) >= $windowScrollHeight) {
+                    $column.css({'position': 'fixed', 'top': '120px', 'bottom': 'auto'});
+                }
+            });
+        }
+
+    }
+}
+
+var diagramsSlider = {
+    init: function () {
+
+        var diagramsSliderSwiper = new Swiper('.js-diagrams-slider', {
+            pagination: '.stats-block__items-diagrams-pagination',
+            simulateTouch: false,
+            slidesPerView: 2,
+            breakpoints: {
+                1565: {
+                    paginationClickable: true,
+                    simulateTouch: true,
+                    slidesPerView: 1,
+                    spaceBetween: 0,
+                }
+            }
+        });
+
+        $(window).on('resize', function () {
+
+            /*diagramsSliderSwiper.reInit()*/
+
+        });
+
+    }
+}
+
+var mainPromoSquares = {
+    init: function () {
+
+        var mainPromoSquaresSwiper = new Swiper('.js-main-promo-squares', {
+            nextButton: '.squares__button-next',
+            prevButton: '.squares__button-prev',
+            simulateTouch: false,
+            slidesPerView: 6,
+            pagination: '.squares__pagination',
+            paginationBulletRender: function (swiper, index, className) {
+                className += " squares__pagination-item";
+                return '<div class="' + className + '" ></div>';
+            },
+            paginationClickable: true,
+            bulletActiveClass: 'active',
+            breakpoints: {
+                1180: {
+                    direction: 'vertical',
+                    simulateTouch: true,
+                    slidesPerView: 3,
+                },
+                820: {
+                    direction: 'horizontal',
+                    simulateTouch: true,
+                    slidesPerView: 2
+                },
+                580: {
+                    direction: 'horizontal',
+                    simulateTouch: true,
+                    slidesPerView: 1
+                }
+            }
+        });
+
+        $(window).on('resize', function () {
+
+            /*mainPromoSquaresSwiper.reInit()*/
+
+        });
+
+    }
+}
+
+var mainMenuMobile = {
+    init: function () {
+
+        $('.js-main-menu-toggle').on('click', function () {
+
+            var $this = $(this);
+                //sliderTwo = $('.squares');
+
+
+            $this.toggleClass('active')
+
+            if ($this.hasClass('active')) {
+
+                $this.parents('.header-wrap__mobile-nav').addClass('active')
+                $this.parents('.header-wrap__inner').addClass('active')
+                $this.parents('.header-wrap').find('.header').addClass('active')
+                $this.parents('.header-wrap').find('.tabs1').addClass('active')
+                //sliderTwo.css({top: '300px'})
+
+            } else {
+
+                $this.parents('.header-wrap__mobile-nav').removeClass('active')
+                $this.parents('.header-wrap__inner').removeClass('active')
+                $this.parents('.header-wrap').find('.header').removeClass('active')
+                $this.parents('.header-wrap').find('.tabs1').removeClass('active')
+
+            }
+
+        });
+
+    }
+}
+
+
+
+var gallerySlider = {
+    init: function () {
+        $('.js-slider-title').eq(0).addClass('gallery-slider__title--active');
+        $('.js-gallery-current').text('1');
+        $('.js-gallery-summ').text($('.js-slider-slide').length);
+        var swiperSliderBig = new Swiper('.js-slider-big', {
+            slidesPerView: 1,
+            spaceBetween: 0,
+            onSlideChangeEnd: function () {
+                $('.js-slider-title').hide().eq(swiperSliderBig.activeIndex).fadeIn();
+                $('.js-gallery-current').text(swiperSliderBig.activeIndex + 1);
+            }
+        });
+        var swiperSliderMini = new Swiper('.js-slider-mini', {
+            nextButton: '.js-gallery-next',
+            prevButton: '.js-gallery-prev',
+            slidesPerView: 4,
+            spaceBetween: 30,
+            breakpoints: {
+                980: {
+                    slidesPerView: 3
+                },
+                780: {
+                    slidesPerView: 2
+                },
+                600: {
+                    slidesPerView: 1
+                }
+            }
+
+        });
+
+        $('.js-slider-slide').on('click', function (e) {
+            e.preventDefault();
+
+            swiperSliderBig.slideTo(parseInt($(this).attr('href')), 500);
+        });
+
+    }
+}
+
+var selectGreen = {
+    init: function () {
+        //default
+        var _select = $('.js-select-default select');
+        if ((_select.length != 0) && (typeof $.fn.select2 == 'function')) {
+            _select.each(function () {
+                var $select = $(this).select2({
+                    theme: 'default',
+
+                    placeholder: $(this).attr('placeholder')
+
+                });
+                $select.on("select2:open", function (e) {
+                    e.preventDefault(e)
+                    if ($('.select2-results__options.mCustomScrollbar').length > 0) {
+                                $('.select2-results__options.mCustomScrollbar').mCustomScrollbar('destroy');
+                            }
+
+                    if ($('.select2-results__options').length > 0) {
+                        setTimeout(function () {
+                            $('.select2-results__options').mCustomScrollbar();
+                                console.log('szdf')
+                        }, 10);
+                    }
+                });
+                // $select.on("select2:closing", function (e) {
+                //     e.preventDefault(e)
+                //     if ($('.select2-results__options.mCustomScrollbar').length > 0) {
+                //         $('.select2-results__options.mCustomScrollbar').mCustomScrollbar('destroy');
+                //     }
+                // });
+            });
+        }
+
+        //scroll on calculator
+        // var selectToScr = $('.js-select'),
+        //     contScrl = $('.select2-results');
+        // function noScr () {
+        //     console.log(contScrl);
+        //     contScrl.mCustomScrollbar();
+        // }
+        // if($('.select2-results').is(":visible")) {
+        //     e.preventDefault(scrollY);
+        //     $('.select2-results__options').mCustomScrollbar({
+        //         setWidth: '100%'
+        //     });
+        // };
+
+        //no border
+        var _selectNob = $('.js-select-default-noborder select');
+        if ((_selectNob.length != 0) && (typeof $.fn.select2 == 'function')) {
+            _selectNob.each(function () {
+                $(this).select2({
+                    theme: 'default-noborder',
+                    placeholder: $(this).attr('placeholder')
+                });
+            });
+        }
+        //with search
+        var _select = $('.js-select-default-search select');
+        if ((_select.length != 0) && (typeof $.fn.select2 == 'function')) {
+            _select.each(function () {
+                $(this).select2({
+                    theme: 'default-search',
+                    placeholder: $(this).attr('placeholder')
+                });
+            });
+        }
+        //select head
+        var _selectH = $('.js-head-select select');
+        if ((_selectH.length != 0) && (typeof $.fn.select2 == 'function')) {
+            _selectH.each(function () {
+                $(this).select2({
+                    theme: 'head'
+                });
+            });
+        }
+    }
+}
+
+var submenuTitleLink = {
+    init: function () {
+        $('.js-submenu-title-link').on('click', function (event) {
+            var $this = $(this);
+            var $thisMainParent = $this.parents('.main-submenu');
+            var $thisWrapper = $this.parents('.js-submenu-sect');
+
+            event.preventDefault();
+
+            if ($this.hasClass('active')) {
+                $this.removeClass('active');
+                $thisWrapper.find('.js-submenu-links').slideUp();
+            } else {
+                $thisMainParent.find('.js-submenu-title-link').removeClass('active');
+                $thisMainParent.find('.js-submenu-links').slideUp();
+                $this.addClass('active');
+                $thisWrapper.find('.js-submenu-links').slideDown();
+            }
+        })
+    }
+}
+
+var headerSearch = {
+    init: function () {
+        $('.js-header-open-search').on('click', function (e) {
+            if ($(window).width() > 1023 - scrollWidth()) {
+                var $this = $(this);
+
+                e.preventDefault();
+
+                $this.parents('.header__inner').addClass('header__inner--search-active');
+            }
+        });
+
+        $('.js-header-close-search').on('click', function (e) {
+            if ($(window).width() > 1023 - scrollWidth()) {
+                var $this = $(this);
+
+                e.preventDefault();
+
+                $this.parents('.header__inner').removeClass('header__inner--search-active');
+            }
+        });
+
+        $('.js-header-search').find('input').keypress(function (e) {
+            if (e.which == 10 || e.which == 13) {
+                this.form.submit();
+            }
+        });
+    }
+}
+
+
+var stickyMenu = {
+    init: function () {
+
+        if ($('.js-main-nav').length != 0 && $(".adaptive-flag").is(":visible") == false) {
+
+            var menu = $('.js-main-nav'),
+                menuHeight = menu.outerHeight(),
+                menuFixer = $('.js-main-nav-fix'),
+                menuLogo = $('.js-menu-logo');
+
+            $(window).scroll(function () {
+
+                if ($(window).scrollTop() >= (menuFixer.offset().top + menuHeight) * 1.3 && $(".adaptive-flag").is(":visible") == false) {
+                    menu.addClass('nav-fixed');
+                    menuFixer.height(menuHeight);
+                    menuLogo.addClass('active');
+                } else {
+                    menu.removeClass('nav-fixed');
+                    menuFixer.height(0);
+                    menuLogo.removeClass('active');
+                }
+
+            });
+
+        }
+    }
+}
+
+
+var stickyPanel = {
+    init: function () {
+
+        if ($('.js-page-menu').length != 0 && $(".adaptive-flag").is(":visible") == false) {
+
+            var panel = $('.js-page-menu'),
+                panelHeight = panel.outerHeight(),
+                panelFixer = $('.js-page-menu-fix');
+
+            $(window).scroll(function () {
+
+                if ($(window).scrollTop() >= (panelFixer.offset().top - $('.js-main-nav').outerHeight()) * 1.05 && $(".adaptive-flag").is(":visible") == false) {
+                    panel.addClass('page-menu--fixed');
+                    panelFixer.height(panelHeight);
+                } else {
+                    panel.removeClass('page-menu--fixed');
+                    panelFixer.height(0);
+                }
+
+            });
+        }
+    }
+}
+
+
+var stickyPanelAnchor = {
+    init: function () {
+
+        if ($('.js-page-menu').length != 0 && $(".adaptive-flag").is(":visible") == false) {
+
+            $('.js-page-menu-link').on('click', function (e) {
+                e.preventDefault();
+
+                var $self = $(this);
+
+                if ($(".adaptive-flag").is(":visible") == false) {
+                    var anchor = $(this);
+
+                    var offset = ($('.js-page-menu').hasClass('page-menu--fixed')) ? $('.js-page-menu').outerHeight() : 15;
+
+                    $('html, body').stop().animate({
+                        scrollTop: $($(this).attr('href')).offset().top - offset - $('.js-main-nav').outerHeight() - 15
+                    }, 1000);// && $('.js-accordion__head').addClass('active')&& $('.accordion__cont').css({display: 'block'});
+
+                    var $requisitesBlock = $('.js-accordion__head--requisites');
+
+                    if ($self.attr('href') == '#detail' && !$requisitesBlock.hasClass('active')) {
+                        $requisitesBlock.trigger('click');
+                    }
+                    var $lisens = $('.js-accordeon-licens');
+                    var $low = $('.js-accordeon-low');
+                    if ($self.attr('href') == '#docs' /*&& !$lisens.hasClass('active')*/) {
+                        $lisens.addClass('active') && $low.addClass('active') && $lisens.siblings(".accordion__cont").slideDown() && $low.siblings(".accordion__cont").slideDown();
+                    }
+
+
+                }
+            });
+        }
+    }
+}
+
+var abkCalc = {
+    init: function () {
+        $('.js-calc-amount').on('keydown', function (e) {
+            if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                (e.keyCode >= 35 && e.keyCode <= 40)) {
+                return;
+            }
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        });
+    }
+}
+
+
+var productsList = {
+    init: function () {
+        if ($(window).width() < 1024 - scrollWidth()) {
+            var productsListSwiper = new Swiper('.js-product-list', {
+                nextButton: '.product-list__button-next',
+                prevButton: '.product-list__button-prev',
+                slidesPerView: 2,
+                spaceBetween: 15,
+                breakpoints: {
+                    640: {
+                        slidesPerView: 1,
+                        spaceBetween: 35,
+                    }
+                }
+            });
+
+            //productsListSwiper.onResize();
+
+
+        }else {
+            setTimeout(function(){
+                $('.js-product-list').find('.swiper-wrapper').removeAttr("style");
+                $('.js-product-list').find('.swiper-slide').removeAttr("style");
+            });
+
+        }
+
+
+    }
+}
+// var destrSwiper = {
+//     init: function () {
+//         if ($(window).width() > 1024 - scrollWidth())
+//             productsList.destroy(deleteInstance, cleanupStyles);
+//     }
+// };
+
+//document ready
+$(function () {
+//main slider
+//     var sliderClone = $('.js-wrap-main').clone();
+//     sliderClone.addClass('slider__slide-wrap--clone').appendTo('.js-overwieu-main')
+//     var count = $('.js-slide-main').length;
+//     // for(var i=0; i < count; i++) {
+//     //     $('.slider__bullets').append('<a href="'+ i +'" class="slider__bullet js-bullet">'+ i +'</a>');
+//     // }
+//     var sliderClone = $('.js-wrap-main').clone();
+//     sliderClone.addClass('slider__slide-wrap--clone').appendTo('.js-overwieu-main')
+//
+//
+//     var index = 0;
+//     function slideMove(target) {
+//         $('.js-wrap-main').animate({top: -1*target*$('.js-slide-main').height()});
+//         // console.log(target);
+//
+//
+//     }
+//
+//     $('.js-next').on('click', function(e) {
+//         e.preventDefault();
+//         index ++;
+//
+//         if(index == count) {
+//             slideMove(0);
+//
+//             index = 0;
+//
+//         }
+//
+//         slideMove(index);
+
+        //console.log(index)
+    //});
+
+
+
+    $('.promo-slider__wrapper').slick({
+        dots: true,
+        autoplay: true,
+        speed: 500,
+        autoplaySpeed: 2000,
+        pauseOnFocus: true,
+        pauseOnHover: true,
+        useTransform: false,
+        prevArrow: false,
+        nextArrow: false
+    });
+
+
+    function setLeft(target) {
+        $('.js-overview-main').css('top' *target * $('.js-slide-main').height());
+    }
+    setLeft();
+
+
+    productsList.init();
+
+    // destrSwiper.init();
+    // fix console bug for old browsers
+    consoleFix.init();
+
+    // news gallery
+    var newsGal = new NewsGal();
+    newsGal.init();
+
+    // svg support
+    svg4everybody();
+
+    // tabs1
+    tabs1.init();
+
+    // tabs2
+    tabs2.init();
+
+    // tabs3
+    tabs3.init(newsGal);
+
+    // select
+    select.init();
+
+    // currencySelect
+    currencySelect.init();
+
+    // irs
+    irsSimple.init();
+    irsInput.init();
+
+    // dropdown
+    var dropdown = new Dropdown();
+    dropdown.init();
+
+    dropdownEmployee.init();
+
+    // accordion
+    accordion.init();
+    accordionNoAnimation.init();
+
+    // help-note
+    helpNote.init();
+
+    // card list more
+    cardListMore.init();
+
+    // creedit cards more
+    creeditCardsMore.init();
+
+    // main slider
+    mainSlider.init();
+
+    // optimization hover effects
+    // optimizeHover.init();
+
+    // slider2
+    var slider2 = new Slider2();
+    slider2.init();
+
+    // slider3
+    var slider3 = new Slider3();
+    slider3.init();
+
+    // slider4
+    var slider4 = new Slider4();
+    slider4.init();
+
+    // dropdown-btn
+    dropdownBtn.init();
+
+    // script for faq page
+    openAccordFaq.init();
+
+    // goz-form validate
+    gozFormValidate.init();
+
+    // slider5
+    slider5.init();
+
+    // commitCalc
+    var commitCalc = new CommitCalc();
+    commitCalc.init();
+
+    // deleteInput
+    deleteInput.init(commitCalc);
+
+    // slider6
+    slider6.init();
+
+    // toggle .credit-list__item-table
+    creditListDetails.init();
+
+    // validate login form
+    loginValidate.init();
+
+    // open popup
+    var openPopup = new OpenPopup();
+    openPopup.init();
+
+    // recovery pass
+    recovPass.init();
+
+    // regForm valid
+    var regForm = new RegForm();
+    regForm.init();
+
+    // switch deposit drop
+    depositDrop.init();
+
+    // slider7
+    slider7.init();
+
+    // contacts list item more
+    contactsListMore.init();
+
+    var uploadFiles = new UploadFiles();
+    uploadFiles.init();
+
+    filterCalendar.init();
+
+    fileLinkPrint.init();
+
+    var faqPopup = new FaqPopup();
+    faqPopup.init();
+
+    var currencyMore = new CurrencyMore();
+    currencyMore.init();
+
+    var currencyCalcSwitch = new CurrencyCalcSwitch();
+    currencyCalcSwitch.init();
+
+    var headerCommunication = new HeaderCommunication();
+    headerCommunication.init();
+
+    mainMenuToggle.init();
+
+    var simplePopup = new SimplePopup();
+    simplePopup.init();
+
+    smiMasonry.init();
+
+    tabsWithSlider.init();
+
+    allContactsShow.init();
+
+    diagramsSlider.init();
+
+    mainPromoSquares.init();
+
+    mainMenuMobile.init();
+
+    selectCityTitle.init();
+
+    selectCityClose.init();
+
+
+
+    gallerySlider.init();
+
+    submenuTitleLink.init();
+
+    headerSearch.init();
+
+    stickyMenu.init();
+
+    stickyPanel.init();
+
+    stickyPanelAnchor.init();
+
+    sliderAboutRating.init();
+
+    fixedRightColumn.init();
+
+    abkCalc.init();
+
+    // постраничка
+    $(document).ready(function () {
+        $('body').on('click', '.pagin__link', function (e) {
+            e.preventDefault();
+            $.get($(this).attr('href'), function (data) {
+                $('.js-ajax-container').html(data);
+                smiMasonry.init();
+            });
+        });
+
+        $(".simple-popup__cont").mCustomScrollbar({
+            theme: "dark",
+            setHeight: "100%",
+            setWidth: "100%",
+            //updateOnContentResize: true
+        });
+
+    });
+
+    selectGreen.init();
+
+
+    //vote winsow
+    var quizOpen = {
+        init: function() {
+            if($('.js-quiz').length != 0) {
+                $('.js-quiz-head').on('click', function() {
+                    $(this).parents('.js-quiz').find('.js-quiz-body').slideToggle();
+                    $(this).toggleClass('active');
+                });
+
+                $('.js-quiz-close').click(function(e){
+                    e.preventDefault();
+                    $('.js-quiz').slideUp('slow');
+                })
+            }
+        }
+    }
+    quizOpen.init();
+
+    //js-show-add-corp
+    $('.js-for-find-click').on('click', '.js-show-add-corp', function (e) {
+        e.preventDefault();
+
+        $('.js-show-add-corp-wrap').fadeToggle();
+    });
+
+    var bToday = new Date();
+    var bYear = bToday.getFullYear() - 18;
+    var bMonth = bToday.getMonth() + 1;
+    var bDay = bToday.getDate();
+    var bDat = bYear + '-' + check(bMonth) + '-' + check(bDay);
+
+    var objBirthMonthsDays = {
+        months_ru: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+        months_en: ['January', 'February', 'March', 'April', 'May', 'june', 'July', 'August', 'September', 'October', 'November', 'December'],
+        days_ru: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+        days_en: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+    };
+
+
+    function check(numb) {
+        var numb;
+
+        if (parseInt(numb) < 10) {
+            numb = '0' + numb;
+        }
+        return numb;
+    }
+
+    //date-birthday
+    $(".js-date-birthday").Zebra_DatePicker({
+        format: 'd-m-Y',
+        direction: ['1900-01-01', bDat],
+        months: objBirthMonthsDays['months_' + BX.message('LANGUAGE_ID')],
+        days: objBirthMonthsDays['days_' + BX.message('LANGUAGE_ID')],
+        start_date: bDat,
+        header_navigation: ['<svg class="datepicker__left">\
+                                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/local/templates/main/icons/sprite.svg#arr-slider-sm-left"></use>\
+                                    </svg>',
+            '<svg class="datepicker__right">\
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/local/templates/main/icons/sprite.svg#arr-slider-sm-right"></use>\
+            </svg>'],
+        view: 'days',
+        onSelect: function () {
+            if ($(this).data('ajax') == 'Y')
+                _this.filter($(this));
+        }
+    });
+
+    $(window).on('resize', function () {
+        mainMenuToggle.init();
+        stickyMenu.init();
+        stickyPanel.init();
+        productsList.init();
+
+    })
+
+
+    // custom bitrix preloader
+    var lastWait = [];
+    /* non-xhr loadings */
+    BX.showWait = function (node, msg) {
+        node = BX(node) || document.body || document.documentElement;
+        msg = msg || BX.message('JS_CORE_LOADING');
+
+        var container_id = node.id || Math.random();
+
+        var obMsg = node.bxmsg = document.body.appendChild(BX.create('DIV', {
+            props: {
+                id: 'wait_' + container_id,
+                className: 'bx-core-waitwindow'
+            },
+            text: msg
+        }));
+
+        setTimeout(BX.delegate(_adjustWait, node), 10);
+
+        $('.js-custom-preloader').show();
+        lastWait[lastWait.length] = obMsg;
+        return obMsg;
+    };
+
+    BX.closeWait = function (node, obMsg) {
+        $('.js-custom-preloader').hide();
+        if (node && !obMsg)
+            obMsg = node.bxmsg;
+        if (node && !obMsg && BX.hasClass(node, 'bx-core-waitwindow'))
+            obMsg = node;
+        if (node && !obMsg)
+            obMsg = BX('wait_' + node.id);
+        if (!obMsg)
+            obMsg = lastWait.pop();
+
+        if (obMsg && obMsg.parentNode) {
+            for (var i = 0, len = lastWait.length; i < len; i++) {
+                if (obMsg == lastWait[i]) {
+                    lastWait = BX.util.deleteFromArray(lastWait, i);
+                    break;
+                }
+            }
+
+            obMsg.parentNode.removeChild(obMsg);
+            if (node)
+                node.bxmsg = null;
+            BX.cleanNode(obMsg, true);
+        }
+    };
+
+    function _adjustWait() {
+        if (!this.bxmsg)
+            return;
+
+        var arContainerPos = BX.pos(this),
+            div_top = arContainerPos.top;
+
+        if (div_top < BX.GetDocElement().scrollTop)
+            div_top = BX.GetDocElement().scrollTop + 5;
+
+        this.bxmsg.style.top = (div_top + 5) + 'px';
+
+        if (this == BX.GetDocElement()) {
+            this.bxmsg.style.right = '5px';
+        }
+        else {
+            this.bxmsg.style.left = (arContainerPos.right - this.bxmsg.offsetWidth - 5) + 'px';
+        }
+    }
+
+	if($(window).width() > 768) {
+		flexibility(document.documentElement);	
+	}
+});
+
+$(window).on('load', function () {
+    blueSquaresSlider.init();
+    $(".js-custom-preloader").delay().fadeOut();
+});
+
+
+
+
