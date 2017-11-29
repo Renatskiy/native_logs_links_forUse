@@ -1,0 +1,25 @@
+<div class="main-slider-tab-item active active" data-item="0">
+    <h2 class="main-slider-tab-item__title">Ссылка</h2>
+</div>
+<div class="main-slider-tab-item" data-item="1">
+    <h2 class="main-slider-tab-item__title">Ссылка</h2>
+</div>
+
+
+<div class="main-slider-tabs__content-item active" data-item="0">
+<p>Content</p>
+<div class="main-slider-tabs__content-item active" data-item="1">
+<p>Content</p>
+
+
+
+$(".main-slider-tab-item").click(function() {
+        if(!$(this).hasClass("active")) {
+            $(".main-slider-tab-item.active").removeClass("active");
+            var object = $(this);
+            object.addClass("active");
+            var item = object.data("item");
+            $(".main-slider-tabs__content-item.active").removeClass("active");
+            $(".main-slider-tabs__content-item").eq(item).addClass("active")
+        }
+    });
