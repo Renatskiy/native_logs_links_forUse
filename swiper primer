@@ -1,0 +1,22 @@
+var mainSlider = {
+    init: function () {
+        var mainSwiper = new Swiper('.js-main-slider',{
+            pagination: '.main__pagination',
+            paginationType: 'bullets',
+            paginationClickable: true,
+            paginationElement: 'span',
+            paginationBulletRender: function (swiper, index, className) {
+                return '<span class="' + className + ' main__bullet "></span>';
+
+            },
+            paginationType: 'bullets',
+            direction: 'vertical',
+            slidesPerView: 1,
+            loop: true,
+            //autoplay: 3000,
+            speed: 2000,
+            effect: "fade",
+        });
+
+    }
+}
