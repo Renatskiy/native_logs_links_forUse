@@ -1,0 +1,156 @@
+var form = $('#form_interview_<?=$id?>');
+            $('.js-submit_<?=$id?>').on('click', function () {
+                function removeError(){
+                    $('.que-check').removeClass($('js-error-input-form'));
+                    $('#que_6_1').removeClass('js-error-input-form');
+                    $('#que_7_1').removeClass('js-error-input-form');
+                }
+                removeError();
+                function checkSev() {
+                    var nonChecked = $('.seven').find('.no').attr('checked');
+                    if(nonChecked){
+                        var one = $('#question_7_1_1').attr('checked');
+                        var two = $('#question_7_1_2').attr('checked');
+                        if(!one && !two){
+                            $('html, body').animate({
+                                scrollTop: $(".seven").offset().top - 30
+                            }, 1000);
+                            $('.seven').removeClass('js-error-input-form');
+                            $('.seven').addClass('js-error-input-form');
+                        }
+                        return (one || two)
+                    }else{
+                        return true;
+                    }
+                }
+
+                    function sendForm(){
+
+                        var data = $(form).serialize();
+                        $.ajax({
+                            type: 'POST',
+                            url: $(form).attr('action'),
+                            data: data,
+                            success: function (data) {
+                                $('#ajax_result_<?=$id?>').html(data);
+                            },
+                            error: function (xhr, str) {
+                                alert('Возникла ошибка: ' + xhr.responseCode);
+                            }
+                        });
+                    }
+
+                    function checkFive() {
+                        $('.check-five').each(function () {
+                                if($(this).find('input:checked').length === 0 ){
+                                    flag = false;
+                                    $('#que_7_1').hide();
+                                }
+
+                            });
+                        if(flag){
+                            sendForm();
+                        }else{ $('.check-five').each(function () {
+                            if($(this).find('input:checked').length === 0){
+                                $('.check-five').removeClass('js-error-input-form')
+                                $(this).addClass('js-error-input-form')
+                                $('html, body').animate({
+                                    scrollTop: $(".js-error-input-form").offset().top - 80
+                                }, 1000);
+                                return false;
+                            }
+                        })
+                        }
+
+
+                    }
+
+                    function checkAllItems(){
+                        if(!checkSev()) return
+                        $('.que-check').each(function () {
+                            if($(this).find('input:checked').length === 0 ){
+
+                                flag = false;
+                            }
+                        });
+                        if(flag){
+
+                             sendForm();
+                        }else{ $('.que-check').each(function () {
+                            if($(this).find('input:checked').length === 0){
+                                $('.que-check').removeClass('js-error-input-form')
+                                $(this).addClass('js-error-input-form')
+                                $('html, body').animate({
+                                    scrollTop: $(".js-error-input-form").offset().top - 80
+                                }, 1000);
+                                return false;
+                                }
+                            })
+                        }
+                    }
+
+                var flag = true;
+                    if($('#question_1_2').prop('checked')){
+
+                        if($('.que-check-8').find('input:checked').length === 0){
+                            $('.que-check-8').addClass('js-error-input-form')
+                            $('html, body').animate({
+                                scrollTop: $(".que-check-8").offset().top - 80
+                            }, 1000);
+                            if($('.que-check-8').find('input:checked').length > 0){
+                                sendForm();
+                            }
+                        }else{
+                            sendForm();
+                        }
+                        return false;
+                    }
+
+                    if($('#question_5_2').prop('checked')){
+                        if($('.que-check-8').find('input:checked').length === 0){
+                            $('.que-check-8').addClass('js-error-input-form')
+                            $('html, body').animate({
+                                scrollTop: $(".que-check-8").offset().top - 80
+                            }, 1000);
+
+                                if($('.que-check-8').find('input:checked').length > 0){
+
+
+
+                                    sendForm();
+                                }
+
+                        }else{
+                            checkFive();
+
+
+                        }
+                        return false;
+                    }
+                    if($('#question_6_2').prop('checked')){
+                        if($('#que_6_1').find('input:checked').length === 0){
+                            $('#que_6_1').addClass('js-error-input-form');
+                            $('html, body').animate({
+                                scrollTop: $("#que_6_1").offset().top - 80
+                            }, 1000);
+
+                        }else{
+                            checkAllItems();
+                        }
+                        return false;
+                    } if($('#question_7_2').prop('checked')){
+                        if($('#que_7_1').find('input:checked').length === 0){
+                            $('#que_7_1').addClass('js-error-input-form');
+                            $('html, body').animate({
+                                scrollTop: $("#que_7_1").offset().top - 80
+                            }, 1000);
+                    }else{
+                        checkAllItems();
+
+                    }
+                    return false;
+                }else{
+                    checkAllItems();
+                }
+                return false;
+            });
