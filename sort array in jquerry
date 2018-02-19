@@ -1,0 +1,31 @@
+$('.highcharts-legend-item').on('click', function () {
+        var arr = [];
+        var defArr = $('.cc-table__table tbody tr')
+        var actualArr = $('.highcharts-legend-item').not('.highcharts-legend-item-hidden');
+        for(var i =0; i<actualArr.length; i++){
+            var it = $(actualArr[i]).text()
+                arr.push(it);
+        }
+        var n = [];
+        for(var i=0;i<defArr.length;i++){
+            var data = $(defArr[i]).data();
+
+            if(!data.name  || arr.indexOf(data.name) < 0 ){
+                $(defArr[i]).hide()
+            } else{
+                var c = $(defArr[i]).find('.count').text();
+                if(c){
+                    var fin = parseFloat(c.replace(/\s+/g, '').replace(/,/g, '.'));
+                    n.push(fin);
+                }
+                $(defArr[i]).show()
+            }
+            var totalAmount = 0;
+            for (var x = 0; x < n.length; x++) {
+                totalAmount += n[x];
+                var totalNum = $('.totalNum').text();
+            }
+        }
+        $('.totalNum').text(totalAmount.toFixed(2).toString());
+    });
+
