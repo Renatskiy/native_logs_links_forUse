@@ -1,0 +1,100 @@
+var indexSwipper ;
+
+
+var indexSwipperParamsDesktop = {
+    slidesPerView: 1,
+    spaceBetween: 0,
+    loop: true,
+    pagination: '.js-index-slider-pagination',
+    paginationType: 'bullets',
+    paginationElement: 'span',
+    paginationClickable: true,
+    grabCursor: false,
+    //autoplay: 6000,
+    //autoplayDisableOnInteraction: false,
+    speed: 1000,
+    direction: 'vertical',
+
+}
+
+var indexSwipperParamsMobile = {
+    slidesPerView: 1,
+    spaceBetween: 0,
+    loop: true,
+    pagination: '.js-index-slider-pagination',
+    paginationType: 'bullets',
+    paginationElement: 'span',
+    paginationClickable: true,
+    grabCursor: false,
+    autoplay: 6000,
+    //autoplayDisableOnInteraction: false,
+    speed: 1000,
+    direction: 'horizontal',
+
+}
+
+
+
+
+function swiperInit() {
+    indexSwipper = new Swiper('.js-index-slider', indexSwipperParamsDesktop);
+}
+function swiperInitMobile() {
+    indexSwipper = new Swiper('.js-index-slider', indexSwipperParamsMobile);
+}
+function swiperDestroy() {
+
+    if(indexSwipper){
+        indexSwipper.setWrapperTranslate('0');
+        indexSwipper.destroy();
+        $('.js-index-slider').removeClass("swiper-container-vertical swiper-container-horizontal");
+        $('.js-index-slider').find('.swiper-slide').width('');
+    }
+
+
+}
+
+var indexSlider = {
+    init: function () {
+
+        if ($('.js-index-slider').length != 0) {
+            if ($('.js-index-slider .swiper-slide').length > 1) {
+
+                swiperInit();
+                console.log('desk')
+
+            }else {
+                $('.js-index-slider-pagination').hide();
+            }
+
+        }
+
+
+    }
+}
+
+var breakpoint = window.matchMedia('(min-width: 700px)');
+
+var breakpointChecker = function() {
+    if(breakpoint.matches === true){
+        if ( indexSlider !== undefined )
+        setTimeout(function(){
+
+            swiperDestroy();
+            swiperInit();
+            console.log('desk');
+        });
+        return;
+    }else if(breakpoint.matches === false){
+        setTimeout(function(){
+            swiperDestroy();
+            swiperInitMobile();
+        });
+
+        console.log('mobile')
+        return;
+    }
+}
+breakpoint.addListener(breakpointChecker);
+breakpointChecker();
+
