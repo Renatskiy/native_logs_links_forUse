@@ -1,0 +1,84 @@
+var aboutTechSlider = {
+    init: function () {
+        if ($('.js-swiper-about').length != 0) {
+            if ($('.js-swiper-about .swiper-slide').length > 1) {
+                var aboutTechSlider = new Swiper('.js-swiper-about', {
+                    slidesPerView: 4,
+                    spaceBetween: 0,
+                    simulateTouch: false,
+                    normalizeSlideIndex: true,
+                    loop: false,
+                    nextButton: $('.js-about-tech-slider-btn-next'),
+                    prevButton: $('.js-about-tech-slider-btn-prev'),
+                    slideToClickedSlide: true,
+                    loopedSlides: $('.js-swiper-about').data('count'),
+                    breakpoints: {
+                        1400: {
+                            slidesPerView: 2,
+                        },
+                        639: {
+                            slidesPerView: 1
+                        }
+                    }
+                });
+
+                var aboutTechYearSlider = new Swiper('.js-swiper-about-year', {
+                    slidesPerView: 7,
+                    spaceBetween: 0,
+                    normalizeSlideIndex: true,
+                    loop: false,
+                    // loopedSlides: $('.js-swiper-about-year').data('count'),
+                    slideToClickedSlide: true,
+                    simulateTouch: false,
+                    nextButton: $('.js-about-year-slider-next'),
+                    prevButton: $('.js-about-year-slider-prev'),
+                    breakpoints: {
+                        1336: {
+                            slidesPerView: 7
+                        },
+                        1224: {
+                            slidesPerView: 6
+                        },
+                        639: {
+                            slidesPerView: 3,
+                            spaceBetween: 0
+                        }
+                    },
+                });
+                var nSlides = $('.js-swiper-about').find('.swiper-slide').length;
+                var nSlides2 = $('.js-swiper-about-year').find('.swiper-slide').length;
+
+                aboutTechSlider.on('slideChangeEnd', function () {
+                    aboutTechYearSlider.slideTo(aboutTechSlider.activeIndex, 100);
+                    $('.about-year-slider__slide').eq(aboutTechSlider.activeIndex).addClass('swiper-slide-active');
+                    $('.about-year-slider__slide').eq(aboutTechSlider.activeIndex).siblings().removeClass('swiper-slide-active');
+
+                });
+                aboutTechYearSlider.on('slideChangeStart', function () {
+                    $('.about-year-slider__slide').eq(aboutTechSlider.activeIndex).addClass('swiper-slide-active');
+                    $('.about-year-slider__slide').eq(aboutTechSlider.activeIndex).siblings().removeClass('swiper-slide-active');
+
+                });
+                $('.about-year-slider__slide').on('click', function () {
+                    aboutTechSlider.slideTo($(this).index(), 100);
+                    $(this).addClass('swiper-slide-active');
+                    $(this).siblings().removeClass('swiper-slide-active');
+                    var count = $(this).index();
+                    $('.about-slider__slide').eq(count).addClass('swiper-slide-active');
+                    $('.about-slider__slide').eq(count).siblings().removeClass('swiper-slide-active');
+
+                });
+                $('.about-slider__slide').on('click', function () {
+                    aboutTechYearSlider.slideTo($(this).index(), 100);
+                    aboutTechSlider.slideTo($(this).index(), 100);
+                    $(this).addClass('swiper-slide-active');
+                    $(this).siblings().removeClass('swiper-slide-active');
+                    var count = $(this).index();
+                    $('.about-year-slider__slide').eq(count).addClass('swiper-slide-active');
+                    $('.about-year-slider__slide').eq(count).siblings().removeClass('swiper-slide-active');
+                })
+
+            }
+        }
+    }
+}
