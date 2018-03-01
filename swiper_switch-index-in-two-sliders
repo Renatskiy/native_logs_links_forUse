@@ -15,9 +15,11 @@ var aboutTechSlider = {
                     breakpoints: {
                         1400: {
                             slidesPerView: 2,
+                            simulateTouch: true,
                         },
                         639: {
-                            slidesPerView: 1
+                            slidesPerView: 1,
+                            simulateTouch: true,
                         }
                     }
                 });
@@ -37,35 +39,25 @@ var aboutTechSlider = {
                             slidesPerView: 7
                         },
                         1224: {
-                            slidesPerView: 6
+                            slidesPerView: 6,
+                            simulateTouch: true,
                         },
                         639: {
                             slidesPerView: 3,
-                            spaceBetween: 0
+                            spaceBetween: 0,
+                            simulateTouch: true,
                         }
                     },
                 });
-                var nSlides = $('.js-swiper-about').find('.swiper-slide').length;
-                var nSlides2 = $('.js-swiper-about-year').find('.swiper-slide').length;
 
-                aboutTechSlider.on('slideChangeEnd', function () {
-                    aboutTechYearSlider.slideTo(aboutTechSlider.activeIndex, 100);
-                    $('.about-year-slider__slide').eq(aboutTechSlider.activeIndex).addClass('swiper-slide-active');
-                    $('.about-year-slider__slide').eq(aboutTechSlider.activeIndex).siblings().removeClass('swiper-slide-active');
-
-                });
-                aboutTechYearSlider.on('slideChangeStart', function () {
-                    $('.about-year-slider__slide').eq(aboutTechSlider.activeIndex).addClass('swiper-slide-active');
-                    $('.about-year-slider__slide').eq(aboutTechSlider.activeIndex).siblings().removeClass('swiper-slide-active');
-
-                });
                 $('.about-year-slider__slide').on('click', function () {
+                    aboutTechYearSlider.slideTo($(this).index(), 100);
                     aboutTechSlider.slideTo($(this).index(), 100);
-                    $(this).addClass('swiper-slide-active');
                     $(this).siblings().removeClass('swiper-slide-active');
+                    $(this).addClass('swiper-slide-active');
                     var count = $(this).index();
-                    $('.about-slider__slide').eq(count).addClass('swiper-slide-active');
                     $('.about-slider__slide').eq(count).siblings().removeClass('swiper-slide-active');
+                    $('.about-slider__slide').eq(count).addClass('swiper-slide-active');
 
                 });
                 $('.about-slider__slide').on('click', function () {
@@ -74,9 +66,21 @@ var aboutTechSlider = {
                     $(this).addClass('swiper-slide-active');
                     $(this).siblings().removeClass('swiper-slide-active');
                     var count = $(this).index();
-                    $('.about-year-slider__slide').eq(count).addClass('swiper-slide-active');
                     $('.about-year-slider__slide').eq(count).siblings().removeClass('swiper-slide-active');
+                    $('.about-year-slider__slide').eq(count).addClass('swiper-slide-active');
                 })
+
+                // aboutTechYearSlider.on('slideChangeEnd', function () {
+                //     aboutTechSlider.slideTo($(this).index(), 100);
+                //
+                // });
+                // aboutTechSlider.on('slideChangeEnd', function () {
+                //     var count = $(this).index();
+                //     aboutTechYearSlider.slideTo($(this).index(), 100);
+                //     // var techItem = $('.about-slider__slide').eq(count);
+                //     // console.log(techItem)
+                // });
+
 
             }
         }
