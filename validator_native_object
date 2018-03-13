@@ -1,0 +1,373 @@
+<script type="text/javascript" language="javascript">
+      $(document).ready(function () {
+        var formId = 'form_interview_<?=$id?>',
+            form = $('#' + formId),
+            errorClassName = 'js-error-input-form';
+
+        /**
+         * Массив объектов вопросов с логикой ответов
+         * !!! для корректной работы вопросы должны идти строго по порядку начиная с 1, т.к. в некоторых функцих
+         * идет обращение к элементу через индекс в массиве, который строго на 1 меньше номера вопроса
+         * !!! id подвопроса через тире, id щтветов - через подчеркивание
+         */
+        var questions = [
+          {
+            id: '1', // номер вопрроса, для выбора блока
+            required: true,
+            checked: false, // состояние был ли ответ на вопрос, включает подвопрос
+            answers: [ // массив объектов логики ответов
+              {
+                id: '1_1', // id ответа
+                showQuestions: ['2', '3', '4', '5', '6', '7', '8'], // какие вопросы показывать при выборе ответа
+              },
+              {
+                id: '1_2',
+                hideQuestions: ['2', '3', '4', '5', '6', '7', '8'], // какие вопросы скрывать при выборе ответа
+              },
+            ]
+          },
+          {
+            id: '2',
+            required: true,
+            checked: false,
+            answers: [
+              {
+                id: '2_1',
+                showSubQuestion: false // при выборе ответа показывать/скрывать подвопрос
+              },
+              {
+                id: '2_2',
+                showSubQuestion: true
+              },
+              {
+                id: '2_3',
+                showSubQuestion: true
+              },
+            ],
+            subQuestion:
+              {
+                id: '2-1',
+              }
+          },
+          {
+            id: '3',
+            required: true,
+            checked: false,
+          },
+          {
+            id: '4',
+            required: true,
+            checked: false,
+          },
+          {
+            id: '5',
+            required: true,
+            checked: false,
+          },
+          {
+            id: '6',
+            required: true,
+            checked: false,
+            answers: [
+              {
+                id: '6_1',
+                showQuestions: ['7', '8'],
+              },
+              {
+                id: '6_2',
+                hideQuestions: ['7', '8'],
+              },
+            ]
+          },
+          {
+            id: '7',
+            required: true,
+            checked: false,
+            answers: [
+              {
+                id: '7_1',
+                showSubQuestion: false // при выборе ответа показывать/скрывать подвопрос
+              },
+              {
+                id: '7_2',
+                showSubQuestion: true
+              },
+            ],
+            subQuestion:
+              {
+                id: '7-1',
+              }
+          },
+          {
+            id: '8',
+            required: true,
+            checked: false,
+            answers: [
+              {
+                id: '8_1',
+                showSubQuestion: false
+              },
+              {
+                id: '8_2',
+                showSubQuestion: true
+              },
+            ],
+            subQuestion:
+              {
+                id: '8-1',
+              }
+          },
+          {
+            id: '9',
+            required: true,
+            checked: false,
+          },
+        ]
+
+        var questionFunctions = {
+          setQuestionCheck: function (obQuestion) {
+            questions[parseInt(obQuestion.id) - 1].checked = Boolean($('#question_' + obQuestion.id + ' input:checked').length);
+          },
+          setSubQuestionCheck: function (obQuestion) {
+            // таймаут потому что hide/show блоков с заданной скоростью
+            setTimeout(function () {
+              if ($('#question_' + obQuestion.id + '-1').is(":visible")) {
+                questions[parseInt(obQuestion.id) - 1].checked = Boolean($('#question_' + obQuestion.id + '-1 input:checked').length);
+              }
+            }, 300);
+          },
+          checkSubQuestion: function (obQuestion) {
+            if ($('#question_' + obQuestion.id + '-1').is(":visible")) {
+              return Boolean($('#question_' + obQuestion.id + '-1 input:checked').length);
+            }
+            return true;
+          }
+        };
+
+        var answerFunctions = {
+          showQuestions: function (obAnswer) {
+            var questionsCount = obAnswer.showQuestions.length;
+            for (var i = 0; i < questionsCount; i++) {
+              showQuestion(obAnswer.showQuestions[i]);
+            }
+          },
+          hideQuestions: function (obAnswer) {
+            var questionsCount = obAnswer.hideQuestions.length;
+            for (var i = 0; i < questionsCount; i++) {
+              hideQuestion(obAnswer.hideQuestions[i]);
+            }
+          },
+          scrollToQuestion: function (obAnswer) {
+            scrollToQuestion(obAnswer.scrollToQuestion);
+          },
+          showSubQuestion: function (obAnswer) {
+            showSubQuestion(obAnswer.showSubQuestion, getQuestionObjectByAnswerObject(obAnswer));
+          }
+        };
+
+        function showQuestion (id) {
+          showQuestionBlock(id);
+          setRequiredQuestion(id, true);
+        }
+
+        function showQuestionBlock (id) {
+          $('#question_' + id).show(300);
+        }
+
+        function hideQuestion (id) {
+          hideQuestionBlock(id);
+          clearQuestionInputs(id);
+          setRequiredQuestion(id, false);
+          setCheckedQuestion(id, false);
+        }
+
+        function hideQuestionBlock(id) {
+          $('#question_' + id + ', #question_' + id + '-1').hide(300);
+        }
+
+        function setRequiredQuestion (id, required) {
+          if (id.split("-").pop() !== '1') { // если это подвопрос, то пропускаем
+            questions[parseInt(id) - 1].required = Boolean(required);
+          }
+        }
+
+
+        function setCheckedQuestion (id, checked) {
+          questions[parseInt(id) - 1].checked = Boolean(checked);
+        }
+
+        function clearQuestionInputs (id) {
+          $('#question_' + id + ' input, #question_' + id + '-1 input').prop('checked', false);
+        }
+        function showSubQuestion (show, obQuestion) {
+          if (show) {
+            showQuestion(obQuestion.subQuestion.id);
+          } else {
+            hideQuestion(obQuestion.subQuestion.id);
+          }
+        }
+
+        function scrollToQuestion (id) {
+          $('html, body').animate({
+            scrollTop: $("#question_" + id).offset().top - 130
+          }, 1000);
+        }
+
+        // Вспомогательная функции для работы с массивом объектов
+        function findInArray (arr, prop, value) {
+          var length = arr.length;
+          for (var i = 0; i < length; i++) {
+            if (arr[i][prop] === value) {
+              return arr[i];
+            }
+          }
+        }
+
+        function getQuestionById (id) {
+          return findInArray(questions, 'id', id.toString());
+        }
+
+        function getAnswerId (answer) {
+          return $(answer).attr('id').split("question_").pop();
+        }
+
+        function getQuestionIdByAnswer (answer) {
+          return $(answer).parents('.que-check').data('question');
+        }
+
+        function getQuestionIdByAnswerObject (obAnswer) {
+          return $('#question_' + obAnswer.id).parents('.que-check').data('question');
+        }
+
+        function getAnswerObject (answer, obQuestion) {
+          return getAnswerFromQuestion(getAnswerId(answer), obQuestion);
+        }
+
+        function getAnswerFromQuestion (answerId, obQuestion) {
+          return findInArray(obQuestion.answers, 'id', answerId.toString());
+        }
+
+        function getQuestionObjectByAnswer (answer) {
+          return getQuestionById(getQuestionIdByAnswer(answer));
+        }
+
+        function getQuestionObjectByAnswerObject (obAnswer) {
+          return getQuestionById(getQuestionIdByAnswerObject(obAnswer));
+        }
+
+        /**
+         * Обработка выбранного ответа,
+         * вызов функций согласно логике описанной в объекте ответа
+         * @param obAnswer
+         */
+        function processAnswerFunctions (obAnswer) {
+          for (var methodName in obAnswer) {
+            if (methodName in answerFunctions) {
+              answerFunctions[methodName](obAnswer);
+            }
+          }
+        }
+
+        /**
+         * Вызов функций для вопроса
+         * @param obQuestion
+         */
+        function processQuestionFunctions (obQuestion) {
+          questionFunctions.setQuestionCheck(obQuestion);
+          questionFunctions.setSubQuestionCheck(obQuestion);
+        }
+
+        function processActionsByAnswer (answer) {
+          var obQuestion = getQuestionObjectByAnswer(answer);
+
+          if (obQuestion.answers){
+            processAnswerFunctions(getAnswerObject(answer, obQuestion));
+          }
+          processQuestionFunctions(obQuestion);
+        }
+
+        /**
+         * Проверка вопросов на заполненность, если они required
+         * @returns {boolean}
+         */
+        function checkQuestionsRequired () {
+          var length = questions.length;
+          for (var i = 0; i < length; i++) {
+            if (questions[i].required === true) {
+              if (questions[i].required !== questions[i].checked) {
+                processValidateQuestion(questions[i]);
+                return false;
+              }
+            }
+          }
+          return true;
+        }
+
+        /**
+         * Показ незаполненности вопроса/подвопроса
+         * @param obQuestion
+         */
+        function processValidateQuestion (obQuestion) {
+          if (obQuestion.subQuestion) {
+            if (questionFunctions.checkSubQuestion(obQuestion)) {
+              showInvalidQuestion(obQuestion.id);
+            } else {
+              showInvalidQuestion(obQuestion.subQuestion.id);
+            }
+          } else {
+            showInvalidQuestion(obQuestion.id);
+          }
+        }
+
+        function showInvalidQuestion (id) {
+          setQuestionValidStatus(id, false);
+          scrollToQuestion(id);
+        }
+        
+        function setQuestionValidStatus (id, status = false) {
+          if (status === false) {
+            $('#question_' + id).addClass(errorClassName);
+          } else {
+            $('#question_' + id).removeClass(errorClassName);
+          }
+        }
+        
+        function setAllQuestionsValid () {
+          $('.' + errorClassName).each(function () {
+            $(this).removeClass(errorClassName);
+          });
+        }
+
+        function processForm (form) {
+          if (checkQuestionsRequired() === true) {
+            sendForm(form);
+          }
+        }
+
+        // Отправка формы
+        function sendForm (form) {
+          var data = $(form).serialize();
+          $.ajax({
+            type: 'POST',
+            url: $(form).attr('action'),
+            data: data,
+            success: function (data) {
+              $('#ajax_result_<?=$id?>').html(data);
+            },
+            error: function (xhr, str) {
+              alert('Возникла ошибка: ' + xhr.responseCode);
+            }
+          });
+        }
+
+        // Запуск скриптов обработки логики выбранного ответа
+        $('#' + formId + ' input').on('change', function () {
+          setAllQuestionsValid();
+          processActionsByAnswer(this);
+        });
+
+        $('.js-submit_<?=$id?>').on('click', function () {
+          processForm(form);
+        });
+      });
+    </script>
