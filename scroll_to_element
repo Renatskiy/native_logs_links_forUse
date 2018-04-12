@@ -1,0 +1,21 @@
+var scrollInterview = {
+    init: function () {
+        $('.js-scroll-interview').on('click', function (e) {
+            console.log('sdf')
+            e.preventDefault;
+            $('html, body').animate({
+                scrollTop: $(".section-expert").offset().top
+            }, 1000);
+
+        });
+        $('.js-scroll-reports').on('click', function (e) {
+            console.log('sdf')
+            e.preventDefault;
+            $('html, body').animate({
+                scrollTop: $(".section-report").offset().top
+            }, 1000);
+
+        });
+
+    }
+}
