@@ -1,0 +1,40 @@
+action_filtered({rootState, commit, getters}, filter) {  //в аргументах - объект со всем state, функция commit и все getters
+        console.log({rootState, commit, getters})
+        console.log(filter)
+
+            const form_date = date_in_ms => dayjs(date_in_ms).format('MMDDYYYY')
+           
+            const user_invoices = rootState.User.user.user_invoices;
+
+            const {get_filter_categories_value} = getters;
+            const {get_filter_categories_id}    = getters;
+            const {get_filter_groups} = getters;
+            const {get_filter_date} = getters;
+            const {get_filter} = getters;
+            const {get_filter_date_flag} = getters;
+
+            
+            const filter_by_id_number = (array, id)               => id && array.filter(x => id.includes(x.id.toString())) || array;
+            const filter_by_statuses  = (array, statuses)         => (
+                    statuses && statuses.length && array.filter(x => statuses.includes(x.status)) || array
+                );
+                
+            const filter_by_period = (array, from, to) => (get_filter.dateOrPeriod == 'period') && array.filter(x => {
+                
+                return x.createdAt >= get_filter.period.from && x.createdAt <= get_filter.period.to} ) || array;
+                    
+                
+            const filter_by_groups = (array, groups) => (get_filter.group_flag && array.filter(x => {
+
+
+                return x.group.service_category ==                                                                                                             groups.id}) || array);
+
+            const filter_by_date = (array, date) => (date && array.filter(x => {return form_date(x.createdAt) == form_date(date)}) || array);
+
+            const a = filter_by_statuses(
+
+filter_by_id_number(filter_by_groups(filter_by_date(filter_by_period(user_invoices, get_filter.period.from, get_filter.period.to), get_filter_date), get_filter_groups),get_filter_categories_id),
+                get_filter_categories_value);
+
+                commit('SET_GLOBAL_FILTER', a)
+    }
