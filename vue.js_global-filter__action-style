@@ -1,6 +1,14 @@
-action_filtered({rootState, commit, getters}, filter) {  //в аргументах - объект со всем state, функция commit и все getters
-        console.log({rootState, commit, getters})
-        console.log(filter)
+import { backendAPI } from '../../helpers/index'
+import _filter from 'lodash.filter'
+import dayjs from 'dayjs'
+
+export default {
+    async getFilterGroups(context) {
+        const result = await backendAPI.service_category_list()
+        context.commit('SET_FILTER_GROUPS', result)
+        return result
+    },
+    action_filtered({rootState, commit, getters}, filter) {  //в аргументах - объект со всем state, функция commit и все getters
 
             const form_date = date_in_ms => dayjs(date_in_ms).format('MMDDYYYY')
            
@@ -19,22 +27,18 @@ action_filtered({rootState, commit, getters}, filter) {  //в аргумента
                     statuses && statuses.length && array.filter(x => statuses.includes(x.status)) || array
                 );
                 
-            const filter_by_period = (array, from, to) => (get_filter.dateOrPeriod == 'period') && array.filter(x => {
-                
-                return x.createdAt >= get_filter.period.from && x.createdAt <= get_filter.period.to} ) || array;
+            const filter_by_period = (array, from, to) => get_filter.dateOrPeriod == 'period' && array.filter(x => {
+                if(get_filter.period.from == null || get_filter.period.to == null){
+                    return array
+                }else return x.createdAt >= get_filter.period.from.getTime() && x.createdAt <= get_filter.period.to.getTime()} ) || array;
                     
                 
             const filter_by_groups = (array, groups) => (get_filter.group_flag && array.filter(x => {
-
-
-                return x.group.service_category ==                                                                                                             groups.id}) || array);
+                    return x.group.service_category ==   groups.id}) || array);
 
             const filter_by_date = (array, date) => (date && array.filter(x => {return form_date(x.createdAt) == form_date(date)}) || array);
-
-            const a = filter_by_statuses(
-
-filter_by_id_number(filter_by_groups(filter_by_date(filter_by_period(user_invoices, get_filter.period.from, get_filter.period.to), get_filter_date), get_filter_groups),get_filter_categories_id),
-                get_filter_categories_value);
+            const a = filter_by_period(filter_by_id_number(filter_by_statuses(filter_by_groups(filter_by_date(user_invoices, get_filter_date), get_filter_categories_id), get_filter_categories_value), get_filter_categories_id), get_filter.period.from, get_filter.period.to)
 
                 commit('SET_GLOBAL_FILTER', a)
     }
+}
