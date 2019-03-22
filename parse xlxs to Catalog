@@ -1,0 +1,50 @@
+  console.log('AtmCheckTapeCatalog loading ...');
+  wb = XLSX.readFile('xlsx/atm_check_tape.xlsx');
+  length = wb.SheetNames.length;
+
+
+  progress = 0;
+
+
+  //parse xlxs to Catalog
+  
+  
+  for (let sheetname of wb.SheetNames) {
+    let data = XLSX.utils.sheet_to_json(wb.Sheets[sheetname]);
+
+    let final = data.reduce( (acc, val )=> {
+      console.log(val);
+      const {
+        'Тип запроса'        : requestType,
+        'Название позиции'   : positionName,
+        'Город'              : city,
+        'Адрес'              : adress,
+        'Контактное лицо'    : contactPerson,
+        'Контактный телефон' : contactPhone,
+        'Центр затрат'       : costCenter,
+        'Цена'               : price,
+      } = val;
+      // _.set(acc, requestType);
+      let obj = {[requestType]: {}};
+      _.set(obj, `${requestType}.${positionName}`, {
+        [city]: {
+          adress,
+          contactPerson,
+          contactPhone,
+          costCenter,
+          price,
+        },
+      });
+      // console.log(obj);
+      objectAssignDeep(acc, obj);
+
+      return acc;
+    }, {});
+    print()()('daata22a.json', final);
+
+    if (data.length > 0) {
+      await Catalog.create({name: 'AtmCheckTapeCatalog', data: final, key_list: []});
+      progress++;
+      log_line_progress('Progress: ' + progress + ' / ' + length);
+    }
+  }
