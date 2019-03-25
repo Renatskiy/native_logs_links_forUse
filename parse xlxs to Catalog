@@ -1,19 +1,8 @@
-  console.log('AtmCheckTapeCatalog loading ...');
-  wb = XLSX.readFile('xlsx/atm_check_tape.xlsx');
-  length = wb.SheetNames.length;
-
-
-  progress = 0;
-
-
-  //parse xlxs to Catalog
-  
-  
   for (let sheetname of wb.SheetNames) {
     let data = XLSX.utils.sheet_to_json(wb.Sheets[sheetname]);
 
     let final = data.reduce( (acc, val )=> {
-      console.log(val);
+      // console.log(val);
       const {
         'Тип запроса'        : requestType,
         'Название позиции'   : positionName,
@@ -25,9 +14,10 @@
         'Цена'               : price,
       } = val;
       // _.set(acc, requestType);
-      let obj = {[requestType]: {}};
+      let obj = {types: {[requestType]: {}}};
       _.set(obj, `${requestType}.${positionName}`, {
         [city]: {
+          city,
           adress,
           contactPerson,
           contactPhone,
@@ -36,14 +26,36 @@
         },
       });
       // console.log(obj);
-      objectAssignDeep(acc, obj);
 
+      objectAssignDeep(acc, obj);
       return acc;
     }, {});
-    print()()('daata22a.json', final);
+
+    let types=[];
+
+    for (let [key, value] of Object.entries( final)) {
+      types.push({
+        products: {name: key, value},
+      });
+    }
+    types.shift();
+
+
+    types.forEach( (item, index) => {
+      item.products.value = Object.entries(item.products.value).map( ([key, value])=> ({
+        name: key,
+        data: value,
+      }));
+
+      item.products.value.forEach((item)=> {
+        item.data =  Object.values(item.data).map( (value) => ({
+          ...value,
+        }));
+      });
+    });
 
     if (data.length > 0) {
-      await Catalog.create({name: 'AtmCheckTapeCatalog', data: final, key_list: []});
+      await Catalog.create({name: 'AtmCheckTapeCatalog', data: types, key_list: []});
       progress++;
       log_line_progress('Progress: ' + progress + ' / ' + length);
     }
